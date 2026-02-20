@@ -232,9 +232,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <p align="center">
   <a href="https://github.com/Oda2/boardpocket">
-    <img src="https://img.shields.io/github/last-commit/yourusername/boardpocket.svg" alt="Last Commit">
+    <img src="https://img.shields.io/github/last-commit/oda2/boardpocket.svg" alt="Last Commit">
   </a>
   <a href="https://github.com/Oda2/boardpocket/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/yourusername/boardpocket.svg" alt="Contributors">
+    <img src="https://img.shields.io/github/contributors/oda2/boardpocket.svg" alt="Contributors">
   </a>
 </p>
