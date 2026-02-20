@@ -73,9 +73,9 @@ Whether you're a casual player or a serious collector, BoardPocket provides ever
 
 <p align="center">
   <img src="assets/screenshots/collection.png" alt="Collection Screen" width="200">
-  <img src="assets/screenshots/game_detail.png" alt="Game Detail" width="200">
   <img src="assets/screenshots/randomizer.png" alt="Randomizer" width="200">
-  <img src="assets/screenshots/settings.png" alt="Settings" width="200">
+  <img src="assets/screenshots/finger_picker.png" alt="Finger Picker" width="200">
+  <img src="assets/screenshots/finger_picker_win.png" alt="Finger Picker Win" width="200">
 </p>
 
 ## 🚀 Installation
@@ -89,7 +89,7 @@ Whether you're a casual player or a serious collector, BoardPocket provides ever
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/boardpocket.git
+git clone https://github.com/Oda2/boardpocket.git
 cd boardpocket
 ```
 
@@ -171,7 +171,7 @@ flutter build web --release
 We love contributions! Here's how you can help:
 
 ### Reporting Bugs
-- Check if the bug has already been reported in [Issues](https://github.com/yourusername/boardpocket/issues)
+- Check if the bug has already been reported in [Issues](https://github.com/Oda2/boardpocket/issues)
 - If not, create a new issue with a clear description and steps to reproduce
 
 ### Suggesting Features
@@ -193,9 +193,9 @@ We love contributions! Here's how you can help:
 
 ## 🗺 Roadmap
 
-- [ ] Board game statistics and analytics dashboard
-- [ ] Player profiles and win/loss tracking
-- [ ] Integration with BoardGameGeek API
+- [X] Board game statistics and analytics dashboard
+- [X] Player profiles and win/loss tracking
+- [?] Integration with BoardGameGeek API
 - [ ] Game recommendations based on collection
 - [ ] Social features (share collections)
 - [ ] Game session timer
@@ -222,7 +222,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact
 
-- **GitHub Issues**: [Create an issue](https://github.com/yourusername/boardpocket/issues)
+- **GitHub Issues**: [Create an issue](https://github.com/Oda2/boardpocket/issues)
 
 ---
 
@@ -231,10 +231,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 </p>
 
 <p align="center">
-  <a href="https://github.com/yourusername/boardpocket">
+  <a href="https://github.com/Oda2/boardpocket">
     <img src="https://img.shields.io/github/last-commit/yourusername/boardpocket.svg" alt="Last Commit">
   </a>
-  <a href="https://github.com/yourusername/boardpocket/graphs/contributors">
+  <a href="https://github.com/Oda2/boardpocket/graphs/contributors">
     <img src="https://img.shields.io/github/contributors/yourusername/boardpocket.svg" alt="Contributors">
   </a>
 </p>
