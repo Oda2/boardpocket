@@ -19,11 +19,16 @@ class AnalyticsService {
   }
 
   Future<void> init() async {
-    _analytics = FirebaseAnalytics.instance;
-    if (!kIsWeb) {
-      _setupErrorTracking();
+    if (kIsWeb) {
+      return;
     }
-    _isInitialized = true;
+    try {
+      _analytics = FirebaseAnalytics.instance;
+      _setupErrorTracking();
+      _isInitialized = true;
+    } catch (e) {
+      _isInitialized = false;
+    }
   }
 
   void _setupErrorTracking() {
@@ -39,19 +44,25 @@ class AnalyticsService {
 
   Future<void> logError(String message, StackTrace? stack) async {
     if (!_isInitialized) return;
-    await analytics.logEvent(
-      name: 'error',
-      parameters: {'message': message, 'stack': stack?.toString() ?? ''},
-    );
+    try {
+      await analytics.logEvent(
+        name: 'error',
+        parameters: {'message': message, 'stack': stack?.toString() ?? ''},
+      );
+    } catch (_) {}
   }
 
   Future<void> logScreenView(String screenName) async {
     if (!_isInitialized) return;
-    await analytics.logScreenView(screenName: screenName);
+    try {
+      await analytics.logScreenView(screenName: screenName);
+    } catch (_) {}
   }
 
   Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
     if (!_isInitialized) return;
-    await analytics.logEvent(name: name, parameters: parameters);
+    try {
+      await analytics.logEvent(name: name, parameters: parameters);
+    } catch (_) {}
   }
 }
