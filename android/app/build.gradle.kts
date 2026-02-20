@@ -51,10 +51,10 @@ android {
         create("release") {
             val envProps = loadEnvFile()
 
-            keyAlias = envProps.getProperty("KEY_ALIAS") ?: System.getenv("KEY_ALIAS")
-            keyPassword = envProps.getProperty("KEY_PASSWORD") ?: System.getenv("KEY_PASSWORD")
-            storeFile = file(envProps.getProperty("STORE_FILE") ?: System.getenv("STORE_FILE") ?: "not-found.jks")
-            storePassword = envProps.getProperty("STORE_PASSWORD") ?: System.getenv("STORE_PASSWORD")
+            keyAlias = envProps.getProperty("BOARD_KEY_ALIAS") ?: System.getenv("KEY_ALIAS")
+            keyPassword = envProps.getProperty("BOARD_KEY_PASSWORD") ?: System.getenv("KEY_PASSWORD")
+            storeFile = file(envProps.getProperty("BOARD_STORE_FILE") ?: System.getenv("STORE_FILE") ?: "not-found.jks")
+            storePassword = envProps.getProperty("BOARD_STORE_PASSWORD") ?: System.getenv("STORE_PASSWORD")
         }
     }
 
