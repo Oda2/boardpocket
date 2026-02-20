@@ -2,11 +2,12 @@ name: Build Android & Web App
 on:
   push:
     branches: [ main ]
+    tags: [ '*' ]
 
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v6
 
@@ -31,7 +32,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v6
         with:
-          name: app-debug
+          name: app-debug-${{ github.ref_name }}
           path: build/app/outputs/flutter-apk/app-debug.apk
 
   build-web:
@@ -49,7 +50,7 @@ jobs:
         run: flutter build web --release --base-href /boardpocket/
 
       - name: Copy static files to web build
-        run: cp web/privacy.html build/web/ && cp web/404.html build/web/
+        run: cp web/privacy.html build/web/ && cp web/404.html build/web/ && cp README.md build/web/ && cp LICENSE build/web/
 
       - name: Upload Web Build
         uses: actions/upload-artifact@v6

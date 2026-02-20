@@ -3,13 +3,18 @@ name: Validate Build & Coverage
 on:
   pull_request:
     branches: [ main ]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 jobs:
   validate:
+    if: github.base_ref == 'main' && github.head_ref != 'gh-pages'
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -28,7 +33,7 @@ jobs:
       - name: Upload coverage
         uses: actions/upload-artifact@v6
         with:
-          name: coverage
+          name: coverage-${{ github.event.pull_request.number }}
           path: coverage/lcov.info
 
       - name: Build Android APK (test)
