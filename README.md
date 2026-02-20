@@ -26,8 +26,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/stars/yourusername/boardpocket?style=social" alt="GitHub stars">
-  <img src="https://img.shields.io/github/forks/yourusername/boardpocket?style=social" alt="GitHub forks">
+  <img src="https://img.shields.io/github/stars/oda2/boardpocket?style=social" alt="GitHub stars">
+  <img src="https://img.shields.io/github/forks/oda2/boardpocket?style=social" alt="GitHub forks">
 </p>
 
 ---
