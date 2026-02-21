@@ -195,7 +195,7 @@ We love contributions! Here's how you can help:
 
 - [X] Board game statistics and analytics dashboard
 - [X] Player profiles and win/loss tracking
-- [?] Integration with BoardGameGeek API
+- [ ] Integration with BoardGameGeek API
 - [ ] Game recommendations based on collection
 - [ ] Social features (share collections)
 - [ ] Game session timer

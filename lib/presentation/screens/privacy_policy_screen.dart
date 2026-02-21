@@ -130,9 +130,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
           'Your personal data (games, wishlists, play sessions) is stored locally on your device. We do not upload your personal data to external servers.',
     },
     {
-      'title': 'Firebase & Crashlytics',
+      'title': 'Analytics',
       'content':
-          'We use Firebase Crashlytics to monitor and fix app crashes. When a crash occurs, the following anonymous data may be sent to Firebase servers:\n\n• Device model and OS version\n• App version\n• Crash traces and stack logs\n\nThis data is anonymous and does not contain your personal game data. It is used solely to improve app stability.',
+          'BoardPocket does not collect analytics data. The app works completely offline and does not send any data to external servers.',
     },
     {
       'title': 'Your Rights',
@@ -169,9 +169,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
           'Seus dados pessoais (jogos, listas de desejos, sessões de jogo) são armazenados localmente em seu dispositivo. Não enviamos seus dados pessoais para servidores externos.',
     },
     {
-      'title': 'Firebase e Crashlytics',
+      'title': 'Analytics',
       'content':
-          'Usamos o Firebase Crashlytics para monitorar e corrigir travamentos do aplicativo. Quando ocorre um travamento, os seguintes dados anônimos podem ser enviados para os servidores do Firebase:\n\n• Modelo do dispositivo e versão do sistema operacional\n• Versão do aplicativo\n• Rastros de erro e logs de falha\n\nEsses dados são anônimos e não contêm seus dados pessoais de jogos. Eles são usados apenas para melhorar a estabilidade do aplicativo.',
+          'BoardPocket não coleta dados de analytics. O aplicativo funciona completamente offline e não envia nenhum dado para servidores externos.',
     },
     {
       'title': 'Seus Direitos',
@@ -208,9 +208,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
           'Tus datos personales (juegos, listas de deseos, sesiones de juego) se almacenan localmente en tu dispositivo. No subimos tus datos personales a servidores externos.',
     },
     {
-      'title': 'Firebase y Crashlytics',
+      'title': 'Analytics',
       'content':
-          'Usamos Firebase Crashlytics para monitorear y corregir fallas de la aplicación. Cuando ocurre una falla, los siguientes datos anónimos pueden ser enviados a los servidores de Firebase:\n\n• Modelo del dispositivo y versión del sistema operativo\n• Versión de la aplicación\n• Rastreos de error y registros de falla\n\nEstos datos son anónimos y no contienen tus datos personales de juegos. Se usan únicamente para mejorar la estabilidad de la aplicación.',
+          'BoardPocket no recopila datos de analytics. La aplicación funciona completamente sin conexión y no envía ningún dato a servidores externos.',
     },
     {
       'title': 'Tus Derechos',

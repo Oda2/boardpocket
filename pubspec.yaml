@@ -45,7 +45,6 @@ dependencies:
 
   # Charts
   fl_chart: ^0.70.0
-  firebase_analytics: ^12.1.2
 
 dev_dependencies:
   flutter_test:

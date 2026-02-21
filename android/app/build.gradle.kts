@@ -76,8 +76,6 @@ flutter {
     source = "../.."
 }
 
-apply(plugin = "com.google.gms.google-services")
-
 dependencies {
     // implementation("com.google.android.play:core:1.10.3")
 }

@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'core/theme/theme.dart';
 import 'core/i18n/i18n.dart';
 import 'core/services/analytics_service.dart';
 import 'presentation/providers/providers.dart';
 import 'router/router.dart';
-
-FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +40,6 @@ class AppWithSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
 
-    // Show loading while settings are loading
     if (settingsProvider.isLoading) {
       return MaterialApp(
         title: 'BoardPocket',
