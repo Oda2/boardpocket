@@ -6,7 +6,11 @@ import 'package:share_plus/share_plus.dart';
 import '../database/database_helper.dart';
 
 class BackupService {
-  final DatabaseHelper _db = DatabaseHelper.instance;
+  DatabaseHelper? _dbOverride;
+
+  DatabaseHelper get _db => _dbOverride ?? DatabaseHelper.instance;
+
+  BackupService({DatabaseHelper? db}) : _dbOverride = db;
 
   Future<String> exportToJson() async {
     final data = await _db.exportAllData();
@@ -56,7 +60,7 @@ class BackupService {
   }
 
   Future<String> getDatabasePath() async {
-    return await _db.database.then((db) => db.path);
+    return await _db.getDatabasePath();
   }
 
   Future<void> shareDatabase() async {

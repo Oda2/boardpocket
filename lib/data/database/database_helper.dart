@@ -81,6 +81,14 @@ class DatabaseHelper {
 
   bool get _isWebMode => kIsWeb;
 
+  Future<String> getDatabasePath() async {
+    if (_isWebMode) {
+      throw Exception('Use memory storage on web');
+    }
+    final db = await database;
+    return db.path;
+  }
+
   Future<Database> get database async {
     if (_isWebMode) {
       throw Exception('Use memory storage on web');
