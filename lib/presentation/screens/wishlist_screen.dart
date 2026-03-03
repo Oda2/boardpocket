@@ -137,10 +137,13 @@ class _WishlistScreenState extends State<WishlistScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/add-wishlist'),
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 80),
+        child: FloatingActionButton(
+          onPressed: () => context.push('/add-wishlist'),
+          backgroundColor: AppColors.primary,
+          child: const Icon(Icons.add),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

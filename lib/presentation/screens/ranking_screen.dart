@@ -27,7 +27,7 @@ class _RankingScreenState extends State<RankingScreen> {
     setState(() => _isLoading = true);
     try {
       final repository = GameRepository();
-      final games = await repository.getAllGames();
+      final games = await repository.getAll();
       // Sort by total plays (most played first)
       games.sort((a, b) => b.totalPlays.compareTo(a.totalPlays));
       setState(() {

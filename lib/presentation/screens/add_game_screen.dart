@@ -377,36 +377,97 @@ class _AddGameScreenState extends State<AddGameScreen> {
   }
 
   Widget _buildPlayerSelector(BuildContext context, bool isDark) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildPlayerCounter(
+          value: _minPlayers,
+          onDecrease: _minPlayers > 1
+              ? () => setState(() => _minPlayers--)
+              : null,
+          onIncrease: _minPlayers < _maxPlayers
+              ? () => setState(() => _minPlayers++)
+              : null,
+          isDark: isDark,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            '-',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDark ? AppColors.textDark : AppColors.textLight,
+            ),
+          ),
+        ),
+        _buildPlayerCounter(
+          value: _maxPlayers,
+          onDecrease: _maxPlayers > _minPlayers
+              ? () => setState(() => _maxPlayers--)
+              : null,
+          onIncrease: () => setState(() => _maxPlayers++),
+          isDark: isDark,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPlayerCounter({
+    required int value,
+    VoidCallback? onDecrease,
+    VoidCallback? onIncrease,
+    required bool isDark,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(9999),
+        color: AppColors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          _buildCircularButton(
+          _buildCounterButton(
             icon: Icons.remove,
-            onTap: () {
-              if (_minPlayers > 1) {
-                setState(() => _minPlayers--);
-              } else if (_maxPlayers > _minPlayers) {
-                setState(() => _maxPlayers--);
-              }
-            },
+            onTap: onDecrease,
+            enabled: onDecrease != null,
           ),
-          Text(
-            '$_minPlayers-$_maxPlayers',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Container(
+            width: 40,
+            alignment: Alignment.center,
+            child: Text(
+              '$value',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ),
-          _buildCircularButton(
+          _buildCounterButton(
             icon: Icons.add,
-            onTap: () {
-              setState(() => _maxPlayers++);
-            },
+            onTap: onIncrease,
+            enabled: onIncrease != null,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCounterButton({
+    required IconData icon,
+    VoidCallback? onTap,
+    required bool enabled,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        alignment: Alignment.center,
+        child: Icon(
+          icon,
+          size: 20,
+          color: enabled
+              ? AppColors.primary
+              : AppColors.primary.withValues(alpha: 0.3),
+        ),
       ),
     );
   }

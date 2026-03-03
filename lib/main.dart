@@ -4,12 +4,14 @@ import 'package:provider/provider.dart';
 import 'core/theme/theme.dart';
 import 'core/i18n/i18n.dart';
 import 'core/services/analytics_service.dart';
+import 'core/di/dependency_injection.dart';
 import 'presentation/providers/providers.dart';
 import 'router/router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AnalyticsService().init();
+  await DependencyInjection().init();
   runApp(const MyApp());
 }
 
@@ -18,13 +20,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final di = DependencyInjection();
+
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => GameProvider()),
-        ChangeNotifierProvider(create: (_) => WishlistProvider()),
-        ChangeNotifierProvider(create: (_) => PlayerProvider()),
         ChangeNotifierProvider(
-          create: (_) => SettingsProvider()..loadSettings(),
+          create: (_) => GameProvider(repository: di.gameRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => WishlistProvider(repository: di.wishlistRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => PlayerProvider(repository: di.playerRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              SettingsProvider(repository: di.settingsRepository)
+                ..loadSettings(),
         ),
         ChangeNotifierProvider(create: (_) => ChallengeProvider()),
       ],

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../data/models/models.dart';
-import '../../data/repositories/repositories.dart';
+import '../../data/repositories/interfaces/wishlist_repository_interface.dart';
 
 class WishlistProvider extends ChangeNotifier {
-  final WishlistRepository _repository = WishlistRepository();
+  final IWishlistRepository _repository;
+
+  WishlistProvider({required IWishlistRepository repository})
+    : _repository = repository;
 
   List<WishlistItem> _items = [];
   bool _isLoading = false;

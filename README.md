@@ -30,6 +30,12 @@
   <img src="https://img.shields.io/github/forks/oda2/boardpocket?style=social" alt="GitHub forks">
 </p>
 
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.oda2.boardpocket&hl=pt_BR">
+    <img src="https://img.shields.io/badge/Google_Play-Available-414141?style=for-the-badge&logo=google-play&logoColor=white" alt="Get it on Google Play">
+  </a>
+</p>
+
 ---
 
 ## 📱 Overview
@@ -151,6 +157,48 @@ flutter build web --release
 - **Finger Picker**: Everyone touches the screen, the app selects randomly
 - **Name Draw**: Add player names and draw to see who goes first
 - **Challenge**: Try the built-in challenges for extra fun
+
+## 🧪 Running Tests
+
+### Run All Tests
+
+```bash
+flutter test
+```
+
+### Run with Coverage
+
+```bash
+# Generate coverage report (creates coverage/lcov.info)
+flutter test --coverage
+
+# Generate HTML report (requires lcov)
+genhtml coverage/lcov.info -o coverage/html
+
+# Open the report
+# macOS
+open coverage/html/index.html
+# Linux
+xdg-open coverage/html/index.html
+```
+
+### Installing lcov
+
+```bash
+# macOS
+brew install lcov
+
+# Ubuntu/Debian
+sudo apt-get install lcov
+```
+
+### Run a Specific Test File
+
+```bash
+flutter test test/your_test_file_test.dart
+```
+
+---
 
 ## 🛠 Tech Stack
 

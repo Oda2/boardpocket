@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/models.dart';
-import '../providers/providers.dart';
+import '../providers/game_provider.dart';
 
 class GameDetailScreen extends StatefulWidget {
   final String gameId;
@@ -19,6 +19,7 @@ class GameDetailScreen extends StatefulWidget {
 
 class _GameDetailScreenState extends State<GameDetailScreen> {
   Game? _game;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -29,9 +30,11 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   }
 
   Future<void> _loadGame() async {
+    setState(() => _isLoading = true);
     final game = await context.read<GameProvider>().getGameById(widget.gameId);
     setState(() {
       _game = game;
+      _isLoading = false;
     });
   }
 
@@ -40,7 +43,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (_game == null) {
+    if (_isLoading || _game == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -51,7 +54,6 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // App Bar with Image
             SliverAppBar(
               expandedHeight: 300,
               pinned: true,
@@ -114,7 +116,6 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                               color: AppColors.primary,
                             ),
                           ),
-                    // Gradient overlay
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -132,8 +133,6 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                 ),
               ),
             ),
-
-            // Content
             SliverToBoxAdapter(
               child: Transform.translate(
                 offset: const Offset(0, -30),
@@ -152,237 +151,15 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 8),
-                        // Title & Category
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                _game!.title,
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark
-                                      ? AppColors.textDark
-                                      : AppColors.textLight,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                _game!.category.toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
-                                  letterSpacing: 1,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
+                        _buildTitleSection(isDark),
                         const SizedBox(height: 16),
-
-                        // Stats Row
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.group,
-                              color: AppColors.primary,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${_game!.players} ${l10n.players}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isDark
-                                    ? AppColors.textSecondaryDark
-                                    : AppColors.textSecondaryLight,
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            Icon(
-                              Icons.timer,
-                              color: AppColors.primary,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _game!.time,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isDark
-                                    ? AppColors.textSecondaryDark
-                                    : AppColors.textSecondaryLight,
-                              ),
-                            ),
-                          ],
-                        ),
-
+                        _buildStatsRow(l10n, isDark),
                         const SizedBox(height: 32),
-
-                        // Stats Cards
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildStatCard(
-                                context: context,
-                                isDark: isDark,
-                                value: '${_game!.totalPlays}',
-                                label: l10n.totalPlays,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _buildStatCard(
-                                context: context,
-                                isDark: isDark,
-                                value: '${_game!.winRate.toStringAsFixed(0)}%',
-                                label: l10n.winRate,
-                              ),
-                            ),
-                          ],
-                        ),
-
+                        _buildStatsCards(l10n, isDark),
                         const SizedBox(height: 32),
-
-                        // Last Played
-                        Text(
-                          l10n.lastPlayed,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? AppColors.textDark
-                                : AppColors.textLight,
-                          ),
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.05)
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: AppColors.primary.withValues(alpha: 0.1),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      _game!.lastPlayed != null
-                                          ? _getMonthAbbreviation(
-                                              _game!.lastPlayed!,
-                                            )
-                                          : 'N/A',
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Text(
-                                      _game!.lastPlayed != null
-                                          ? '${_game!.lastPlayed!.day}'
-                                          : '-',
-                                      style: const TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      _game!.lastPlayed != null
-                                          ? _getDayName(_game!.lastPlayed!)
-                                          : l10n.neverPlayed,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _game!.lastPlayed != null
-                                          ? 'Played ${_getTimeAgo(_game!.lastPlayed!, l10n)}'
-                                          : l10n.addPlaySession,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: isDark
-                                            ? AppColors.textSecondaryDark
-                                            : AppColors.textSecondaryLight,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
+                        _buildLastPlayedSection(l10n, isDark),
                         const SizedBox(height: 32),
-
-                        // Play Buttons
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () => _recordPlay(context, true),
-                                icon: const Icon(Icons.emoji_events),
-                                label: Text(l10n.won),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () => _recordPlay(context, false),
-                                icon: const Icon(Icons.close),
-                                label: Text(l10n.lost),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: isDark
-                                      ? Colors.white.withValues(alpha: 0.1)
-                                      : Colors.grey[300],
-                                  foregroundColor: isDark
-                                      ? AppColors.textDark
-                                      : AppColors.textLight,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
+                        _buildPlayButtons(context, l10n),
                         const SizedBox(height: 100),
                       ],
                     ),
@@ -396,12 +173,94 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 
-  Widget _buildStatCard({
-    required BuildContext context,
-    required bool isDark,
-    required String value,
-    required String label,
-  }) {
+  Widget _buildTitleSection(bool isDark) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(
+            _game!.title,
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: isDark ? AppColors.textDark : AppColors.textLight,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            _game!.category.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsRow(AppLocalizations l10n, bool isDark) {
+    return Row(
+      children: [
+        Icon(Icons.group, color: AppColors.primary, size: 20),
+        const SizedBox(width: 8),
+        Text(
+          '${_game!.players} ${l10n.players}',
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+          ),
+        ),
+        const SizedBox(width: 24),
+        Icon(Icons.timer, color: AppColors.primary, size: 20),
+        const SizedBox(width: 8),
+        Text(
+          _game!.time,
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsCards(AppLocalizations l10n, bool isDark) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildStatCard(
+            isDark,
+            '${_game!.totalPlays}',
+            l10n.totalPlays,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: _buildStatCard(
+            isDark,
+            '${_game!.winRate.toStringAsFixed(0)}%',
+            l10n.winRate,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(bool isDark, String value, String label) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -438,7 +297,129 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 
-  void _recordPlay(BuildContext context, bool won) async {
+  Widget _buildLastPlayedSection(AppLocalizations l10n, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.lastPlayed,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: isDark ? AppColors.textDark : AppColors.textLight,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _game!.lastPlayed != null
+                          ? _getMonthAbbreviation(_game!.lastPlayed!)
+                          : 'N/A',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      _game!.lastPlayed != null
+                          ? '${_game!.lastPlayed!.day}'
+                          : '-',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _game!.lastPlayed != null
+                          ? _getDayName(_game!.lastPlayed!)
+                          : l10n.neverPlayed,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _game!.lastPlayed != null
+                          ? 'Played ${_getTimeAgo(_game!.lastPlayed!, l10n)}'
+                          : l10n.addPlaySession,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondaryLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPlayButtons(BuildContext context, AppLocalizations l10n) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () => _recordPlay(context, true),
+            icon: const Icon(Icons.emoji_events),
+            label: Text(l10n.won),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () => _recordPlay(context, false),
+            icon: const Icon(Icons.close),
+            label: Text(l10n.lost),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.grey[300],
+              foregroundColor: isDark
+                  ? AppColors.textDark
+                  : AppColors.textLight,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _recordPlay(BuildContext context, bool won) async {
     await context.read<GameProvider>().recordPlay(_game!.id, won);
     await _loadGame();
   }
@@ -508,16 +489,11 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     final now = DateTime.now();
     final difference = now.difference(date);
 
-    if (difference.inDays == 0) {
-      return l10n.today;
-    } else if (difference.inDays == 1) {
-      return l10n.yesterday;
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} ${l10n.daysAgo}';
-    } else if (difference.inDays < 30) {
+    if (difference.inDays == 0) return l10n.today;
+    if (difference.inDays == 1) return l10n.yesterday;
+    if (difference.inDays < 7) return '${difference.inDays} ${l10n.daysAgo}';
+    if (difference.inDays < 30)
       return '${(difference.inDays / 7).floor()} ${l10n.weeksAgo}';
-    } else {
-      return '${(difference.inDays / 30).floor()} ${l10n.monthsAgo}';
-    }
+    return '${(difference.inDays / 30).floor()} ${l10n.monthsAgo}';
   }
 }

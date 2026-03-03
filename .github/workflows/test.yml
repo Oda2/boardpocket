@@ -1,0 +1,45 @@
+name: Test & Coverage
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.0'
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Generate coverage
+        run: flutter test --coverage
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          path-to-lcov: './coverage/lcov.info'
+          flag-name: flutter
+          parallel: true
+
+  notify-coveralls:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Finished
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true

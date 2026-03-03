@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../../data/repositories/settings_repository.dart';
 
 class SettingsProvider extends ChangeNotifier {
-  final SettingsRepository _repository = SettingsRepository();
+  final SettingsRepository _repository;
+
+  SettingsProvider({required SettingsRepository repository})
+    : _repository = repository;
 
   bool _isDarkMode = true;
   String _language = 'en';

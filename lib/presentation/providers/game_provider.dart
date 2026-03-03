@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../data/models/models.dart';
-import '../../data/repositories/repositories.dart';
+import '../../data/repositories/interfaces/game_repository_interface.dart';
 
 class GameProvider extends ChangeNotifier {
-  final GameRepository _repository = GameRepository();
+  final IGameRepository _repository;
+
+  GameProvider({required IGameRepository repository})
+    : _repository = repository;
 
   List<Game> _games = [];
   List<String> _categories = [];

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../data/models/models.dart';
-import '../../data/repositories/repositories.dart';
+import '../../data/repositories/interfaces/player_repository_interface.dart';
 
 class PlayerProvider extends ChangeNotifier {
-  final PlayerRepository _repository = PlayerRepository();
+  final IPlayerRepository _repository;
+
+  PlayerProvider({required IPlayerRepository repository})
+    : _repository = repository;
 
   List<Player> _players = [];
   String? _winner;
@@ -39,7 +42,6 @@ class PlayerProvider extends ChangeNotifier {
     _isDrawing = true;
     notifyListeners();
 
-    // Simulate drawing animation
     Future.delayed(const Duration(seconds: 1), () {
       _winner = _players[DateTime.now().millisecond % _players.length].name;
       _isDrawing = false;
