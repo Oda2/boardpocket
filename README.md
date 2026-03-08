@@ -23,7 +23,7 @@
   <img src="https://img.shields.io/badge/Dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white" alt="Dart">
   <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="License: MIT">
   <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-blue.svg?style=for-the-badge" alt="Platforms">
-  <img src="https://img.shields.io/coverallsCoverage/github/Oda2/boardpocket?style=for-the-badge" alt="Coverage Status">
+  <img src="https://img.shields.io/coveralls/l/github/Oda2/boardpocket.svg?style=for-the-badge" alt="Coverage Status">
 </p>
 
 <p align="center">
