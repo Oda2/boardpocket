@@ -24,10 +24,10 @@ class DependencyInjection {
 
   late final DatabaseHelper _databaseHelper;
 
-  late final IGameRepository gameRepository;
-  late final IWishlistRepository wishlistRepository;
-  late final IPlayerRepository playerRepository;
-  late final SettingsRepository settingsRepository;
+  IGameRepository? gameRepository;
+  IWishlistRepository? wishlistRepository;
+  IPlayerRepository? playerRepository;
+  SettingsRepository? settingsRepository;
 
   bool _initialized = false;
 
@@ -45,6 +45,7 @@ class DependencyInjection {
   }
 
   void resetForTesting() {
+    _initialized = false;
     gameRepository = MockGameRepository();
     wishlistRepository = MockWishlistRepository();
     playerRepository = MockPlayerRepository();
@@ -188,17 +189,17 @@ List<ChangeNotifierProvider> getProviders() {
 
   return [
     ChangeNotifierProvider(
-      create: (_) => GameProvider(repository: di.gameRepository),
+      create: (_) => GameProvider(repository: di.gameRepository!),
     ),
     ChangeNotifierProvider(
-      create: (_) => WishlistProvider(repository: di.wishlistRepository),
+      create: (_) => WishlistProvider(repository: di.wishlistRepository!),
     ),
     ChangeNotifierProvider(
-      create: (_) => PlayerProvider(repository: di.playerRepository),
+      create: (_) => PlayerProvider(repository: di.playerRepository!),
     ),
     ChangeNotifierProvider(
       create: (_) =>
-          SettingsProvider(repository: di.settingsRepository)..loadSettings(),
+          SettingsProvider(repository: di.settingsRepository!)..loadSettings(),
     ),
     ChangeNotifierProvider(create: (_) => ChallengeProvider()),
   ];

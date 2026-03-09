@@ -25,17 +25,17 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => GameProvider(repository: di.gameRepository),
+          create: (_) => GameProvider(repository: di.gameRepository!),
         ),
         ChangeNotifierProvider(
-          create: (_) => WishlistProvider(repository: di.wishlistRepository),
+          create: (_) => WishlistProvider(repository: di.wishlistRepository!),
         ),
         ChangeNotifierProvider(
-          create: (_) => PlayerProvider(repository: di.playerRepository),
+          create: (_) => PlayerProvider(repository: di.playerRepository!),
         ),
         ChangeNotifierProvider(
           create: (_) =>
-              SettingsProvider(repository: di.settingsRepository)
+              SettingsProvider(repository: di.settingsRepository!)
                 ..loadSettings(),
         ),
         ChangeNotifierProvider(create: (_) => ChallengeProvider()),
