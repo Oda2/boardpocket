@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import '../../core/components/components.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/models.dart';
@@ -21,11 +19,11 @@ class AddGameScreen extends StatefulWidget {
 
 class _AddGameScreenState extends State<AddGameScreen> {
   final _titleController = TextEditingController();
-  File? _selectedImage;
+  String? _selectedImagePath;
   int _minPlayers = 1;
   int _maxPlayers = 4;
   int _playTime = 60;
-  double _complexity = 3;
+  int _complexity = 3;
   String _category = 'Strategy';
   Game? _existingGame;
   final List<String> _categories = [
@@ -53,25 +51,12 @@ class _AddGameScreenState extends State<AddGameScreen> {
       setState(() {
         _existingGame = game;
         _titleController.text = game.title;
-        if (game.imagePath != null) {
-          _selectedImage = File(game.imagePath!);
-        }
+        _selectedImagePath = game.imagePath;
         _minPlayers = game.minPlayers ?? 1;
         _maxPlayers = game.maxPlayers ?? 4;
         _playTime = game.playTime ?? 60;
-        _complexity = game.complexity ?? 3;
+        _complexity = (game.complexity ?? 3).toInt();
         _category = game.category;
-      });
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
       });
     }
   }
@@ -82,14 +67,14 @@ class _AddGameScreenState extends State<AddGameScreen> {
     if (_isEditing && _existingGame != null) {
       final updatedGame = _existingGame!.copyWith(
         title: _titleController.text,
-        imagePath: _selectedImage?.path,
+        imagePath: _selectedImagePath,
         players: '$_minPlayers-$_maxPlayers',
         time: '${_playTime}m',
         category: _category,
         minPlayers: _minPlayers,
         maxPlayers: _maxPlayers,
         playTime: _playTime,
-        complexity: _complexity,
+        complexity: _complexity.toDouble(),
         updatedAt: DateTime.now(),
       );
       context.read<GameProvider>().updateGame(updatedGame);
@@ -97,14 +82,14 @@ class _AddGameScreenState extends State<AddGameScreen> {
       final game = Game(
         id: const Uuid().v4(),
         title: _titleController.text,
-        imagePath: _selectedImage?.path,
+        imagePath: _selectedImagePath,
         players: '$_minPlayers-$_maxPlayers',
         time: '${_playTime}m',
         category: _category,
         minPlayers: _minPlayers,
         maxPlayers: _maxPlayers,
         playTime: _playTime,
-        complexity: _complexity,
+        complexity: _complexity.toDouble(),
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -125,40 +110,38 @@ class _AddGameScreenState extends State<AddGameScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            _buildHeader(context, isDark),
-
-            // Form
+            _buildHeader(context, l10n),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Image Upload
-                    _buildImageUpload(context, isDark),
+                    ImageUpload(
+                      imagePath: _selectedImagePath,
+                      hintText: l10n.uploadCover,
+                      onImageSelected: (path) {
+                        setState(() => _selectedImagePath = path);
+                      },
+                    ),
                     const SizedBox(height: 24),
-
-                    // Title
-                    _buildLabel(l10n.gameTitle),
+                    SectionLabel(text: l10n.gameTitle),
                     const SizedBox(height: 8),
-                    _buildTextField(
+                    AppTextField(
                       controller: _titleController,
                       hint: l10n.enterGameTitle,
                       icon: Icons.label_outline,
                     ),
                     const SizedBox(height: 24),
-
-                    // Players & Time
                     Row(
                       children: [
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildLabel(l10n.players),
+                              SectionLabel(text: l10n.players),
                               const SizedBox(height: 8),
-                              _buildPlayerSelector(context, isDark),
+                              _buildPlayerSelector(),
                             ],
                           ),
                         ),
@@ -167,92 +150,72 @@ class _AddGameScreenState extends State<AddGameScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildLabel(l10n.playTime),
+                              SectionLabel(text: l10n.playTime),
                               const SizedBox(height: 8),
-                              _buildTimeInput(context, isDark),
+                              AppTextField(
+                                hint: '60',
+                                icon: Icons.schedule,
+                                suffixText: 'MINS',
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _playTime = int.tryParse(value) ?? 60;
+                                  });
+                                },
+                              ),
                             ],
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
-
-                    // Category
-                    _buildLabel(l10n.category),
+                    SectionLabel(text: l10n.category),
                     const SizedBox(height: 8),
-                    _buildCategorySelector(context, isDark),
+                    ChipSelector(
+                      items: _categories,
+                      selected: _category,
+                      onSelected: (cat) => setState(() => _category = cat),
+                    ),
                     const SizedBox(height: 24),
-
-                    // Complexity
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildLabel(l10n.complexity),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            _getComplexityLabel(l10n),
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
+                    SectionLabel(
+                      text: l10n.complexity,
+                      trailing: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          _getComplexityLabel(l10n),
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
                           ),
                         ),
-                      ],
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    _buildComplexitySelector(context, isDark),
+                    StarRating(
+                      value: _complexity,
+                      onChanged: (val) => setState(() => _complexity = val),
+                    ),
                     const SizedBox(height: 100),
                   ],
                 ),
               ),
             ),
-
-            // Save Button
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    isDark
-                        ? AppColors.backgroundDark
-                        : AppColors.backgroundLight,
-                    (isDark
-                            ? AppColors.backgroundDark
-                            : AppColors.backgroundLight)
-                        .withValues(alpha: 0),
-                  ],
-                ),
-              ),
-              child: SafeArea(
-                child: ElevatedButton.icon(
-                  onPressed: _saveGame,
-                  icon: Icon(_isEditing ? Icons.save : Icons.library_add),
-                  label: Text(_isEditing ? l10n.save : l10n.addToCollection),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 56),
-                  ),
-                ),
-              ),
-            ),
+            _buildSaveButton(l10n, isDark),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context);
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -275,120 +238,15 @@ class _AddGameScreenState extends State<AddGameScreen> {
     );
   }
 
-  Widget _buildImageUpload(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context);
-    return GestureDetector(
-      onTap: _pickImage,
-      child: Container(
-        height: 200,
-        decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            width: 2,
-            style: BorderStyle.solid,
-          ),
-          image: _selectedImage != null
-              ? DecorationImage(
-                  image: FileImage(_selectedImage!),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        ),
-        child: _selectedImage == null
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(32),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.add_a_photo,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.uploadCover,
-                    style: TextStyle(
-                      color: isDark
-                          ? AppColors.textSecondaryDark
-                          : AppColors.textSecondaryLight,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              )
-            : null,
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Text(
-      text.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.bold,
-        color: AppColors.primary,
-        letterSpacing: 1.5,
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-    TextInputType? keyboardType,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(9999),
-      ),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          hintText: hint,
-          prefixIcon: Icon(
-            icon,
-            color: AppColors.primary.withValues(alpha: 0.6),
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 18),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPlayerSelector(BuildContext context, bool isDark) {
+  Widget _buildPlayerSelector() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildPlayerCounter(
+        NumberCounter(
           value: _minPlayers,
-          onDecrease: _minPlayers > 1
-              ? () => setState(() => _minPlayers--)
-              : null,
-          onIncrease: _minPlayers < _maxPlayers
-              ? () => setState(() => _minPlayers++)
-              : null,
-          isDark: isDark,
+          min: 1,
+          max: _maxPlayers,
+          onChanged: (val) => setState(() => _minPlayers = val),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -397,203 +255,42 @@ class _AddGameScreenState extends State<AddGameScreen> {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textDark : AppColors.textLight,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? AppColors.textDark
+                  : AppColors.textLight,
             ),
           ),
         ),
-        _buildPlayerCounter(
+        NumberCounter(
           value: _maxPlayers,
-          onDecrease: _maxPlayers > _minPlayers
-              ? () => setState(() => _maxPlayers--)
-              : null,
-          onIncrease: () => setState(() => _maxPlayers++),
-          isDark: isDark,
+          min: _minPlayers,
+          max: 20,
+          onChanged: (val) => setState(() => _maxPlayers = val),
         ),
       ],
     );
   }
 
-  Widget _buildPlayerCounter({
-    required int value,
-    VoidCallback? onDecrease,
-    VoidCallback? onIncrease,
-    required bool isDark,
-  }) {
+  Widget _buildSaveButton(AppLocalizations l10n, bool isDark) {
     return Container(
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildCounterButton(
-            icon: Icons.remove,
-            onTap: onDecrease,
-            enabled: onDecrease != null,
-          ),
-          Container(
-            width: 40,
-            alignment: Alignment.center,
-            child: Text(
-              '$value',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ),
-          _buildCounterButton(
-            icon: Icons.add,
-            onTap: onIncrease,
-            enabled: onIncrease != null,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCounterButton({
-    required IconData icon,
-    VoidCallback? onTap,
-    required bool enabled,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 36,
-        alignment: Alignment.center,
-        child: Icon(
-          icon,
-          size: 20,
-          color: enabled
-              ? AppColors.primary
-              : AppColors.primary.withValues(alpha: 0.3),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCircularButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark
-              ? AppColors.backgroundDark
-              : AppColors.backgroundLight,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [
+            isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+            (isDark ? AppColors.backgroundDark : AppColors.backgroundLight)
+                .withValues(alpha: 0),
           ],
         ),
-        child: Icon(icon, color: AppColors.primary),
       ),
-    );
-  }
-
-  Widget _buildTimeInput(BuildContext context, bool isDark) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(9999),
-      ),
-      child: TextField(
-        keyboardType: TextInputType.number,
-        onChanged: (value) {
-          setState(() {
-            _playTime = int.tryParse(value) ?? 60;
-          });
-        },
-        decoration: InputDecoration(
-          hintText: '60',
-          prefixIcon: Icon(
-            Icons.schedule,
-            color: AppColors.primary.withValues(alpha: 0.6),
-          ),
-          suffixText: 'MINS',
-          suffixStyle: TextStyle(
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
-            fontWeight: FontWeight.bold,
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 18),
+      child: SafeArea(
+        child: AppButton(
+          label: _isEditing ? l10n.save : l10n.addToCollection,
+          icon: _isEditing ? Icons.save : Icons.library_add,
+          onPressed: _saveGame,
         ),
-      ),
-    );
-  }
-
-  Widget _buildCategorySelector(BuildContext context, bool isDark) {
-    return Container(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _categories.length,
-        itemBuilder: (context, index) {
-          final category = _categories[index];
-          final isSelected = category == _category;
-
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              onTap: () => setState(() => _category = category),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primary
-                      : AppColors.primary.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(9999),
-                ),
-                child: Text(
-                  category,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildComplexitySelector(BuildContext context, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(5, (index) {
-          final isSelected = index < _complexity;
-          return GestureDetector(
-            onTap: () => setState(() => _complexity = index + 1),
-            child: Icon(
-              Icons.star,
-              size: 32,
-              color: isSelected
-                  ? AppColors.primary
-                  : AppColors.primary.withValues(alpha: 0.3),
-            ),
-          );
-        }),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../../core/components/components.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/models.dart';
@@ -42,35 +43,38 @@ class _CollectionScreenState extends State<CollectionScreen> {
           children: [
             Column(
               children: [
-                // Header
-                _buildHeader(context, isDark, games.length, l10n),
-
-                // Search Bar
-                _buildSearchBar(context, isDark, l10n),
-
-                // Category Chips
-                _buildCategoryChips(
-                  context,
-                  isDark,
-                  categories,
-                  gameProvider.selectedCategory,
+                AppHeader(
+                  subtitle: 'BoardPocket',
+                  title: l10n.collection,
+                  trailing: ProfileAvatar(
+                    onTap: () => context.push('/settings'),
+                  ),
                 ),
-
-                // Games Grid
+                AppSearchBar(
+                  hint: l10n.searchGames,
+                  onChanged: (value) =>
+                      context.read<GameProvider>().setSearchQuery(value),
+                ),
+                ChipSelector(
+                  items: categories,
+                  selected: gameProvider.selectedCategory,
+                  onSelected: (category) =>
+                      context.read<GameProvider>().setCategory(category),
+                ),
                 Expanded(
                   child: gameProvider.isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : games.isEmpty
-                      ? _buildEmptyState(context, isDark, l10n)
+                      ? EmptyState(
+                          icon: Icons.sports_esports_outlined,
+                          title: l10n.noGamesYet,
+                          subtitle: l10n.tapToAddFirstGame,
+                        )
                       : _buildGamesGrid(context, games),
                 ),
-
-                // Bottom TabBar
                 const BottomTabBar(activeRoute: '/'),
               ],
             ),
-
-            // FAB
             Positioned(
               right: 24,
               bottom: 100,
@@ -83,214 +87,6 @@ class _CollectionScreenState extends State<CollectionScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(
-    BuildContext context,
-    bool isDark,
-    int gameCount,
-    AppLocalizations l10n,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'BoardPocket',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                  letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                l10n.collection,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? AppColors.textDark : AppColors.textLight,
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              _buildIconButton(
-                context,
-                icon: Icons.analytics_outlined,
-                isDark: isDark,
-                onTap: () {},
-              ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap: () => context.push('/settings'),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.2),
-                      width: 2,
-                    ),
-                  ),
-                  child: const Icon(Icons.person, color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildIconButton(
-    BuildContext context, {
-    required IconData icon,
-    required bool isDark,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Icon(icon, color: AppColors.primary),
-      ),
-    );
-  }
-
-  Widget _buildSearchBar(
-    BuildContext context,
-    bool isDark,
-    AppLocalizations l10n,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.05)
-                    : Colors.black.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(9999),
-              ),
-              child: TextField(
-                onChanged: (value) =>
-                    context.read<GameProvider>().setSearchQuery(value),
-                decoration: InputDecoration(
-                  hintText: l10n.searchGames,
-                  hintStyle: TextStyle(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : Colors.black.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Icon(
-              Icons.tune,
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryChips(
-    BuildContext context,
-    bool isDark,
-    List<String> categories,
-    String selected,
-  ) {
-    return Container(
-      height: 50,
-      margin: const EdgeInsets.only(top: 16),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final category = categories[index];
-          final isSelected = category == selected;
-
-          return Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: GestureDetector(
-              onTap: () => context.read<GameProvider>().setCategory(category),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primary
-                      : isDark
-                      ? Colors.white.withValues(alpha: 0.05)
-                      : Colors.black.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(9999),
-                  border: isSelected
-                      ? null
-                      : Border.all(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.1)
-                              : Colors.black.withValues(alpha: 0.1),
-                        ),
-                ),
-                child: Text(
-                  category,
-                  style: TextStyle(
-                    color: isSelected
-                        ? Colors.white
-                        : isDark
-                        ? AppColors.textDark
-                        : AppColors.textLight,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }
@@ -329,18 +125,8 @@ class _CollectionScreenState extends State<CollectionScreen> {
 
     return GestureDetector(
       onTap: () => context.push('/game-detail/${game.id}'),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Colors.black.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.05)
-                : Colors.black.withValues(alpha: 0.05),
-          ),
-        ),
+      child: ThemeContainer(
+        padding: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -425,46 +211,6 @@ class _CollectionScreenState extends State<CollectionScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(
-    BuildContext context,
-    bool isDark,
-    AppLocalizations l10n,
-  ) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.sports_esports_outlined,
-            size: 64,
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.noGamesYet,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textDark : AppColors.textLight,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.tapToAddFirstGame,
-            style: TextStyle(
-              fontSize: 14,
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
-            ),
-          ),
-        ],
       ),
     );
   }

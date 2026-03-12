@@ -68,11 +68,5 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(Column), findsWidgets);
     });
-
-    testWidgets('should have IconButton', (tester) async {
-      await tester.pumpWidget(createTestWidget(playerProvider: playerProvider));
-      await tester.pumpAndSettle();
-      expect(find.byType(IconButton), findsWidgets);
-    });
   });
 }

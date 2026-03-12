@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../core/components/components.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/models.dart';
@@ -44,79 +45,29 @@ class _WishlistScreenState extends State<WishlistScreen> {
           children: [
             Column(
               children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'BoardPocket',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            l10n.wishlist,
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w800,
-                              color: isDark
-                                  ? AppColors.textDark
-                                  : AppColors.textLight,
-                            ),
-                          ),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () => context.push('/settings'),
-                        child: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(22),
-                            border: Border.all(
-                              color: AppColors.primary.withValues(alpha: 0.2),
-                              width: 2,
-                            ),
-                          ),
-                          child: const Icon(Icons.person, color: Colors.white),
-                        ),
-                      ),
-                    ],
+                AppHeader(
+                  subtitle: 'BoardPocket',
+                  title: l10n.wishlist,
+                  trailing: ProfileAvatar(
+                    onTap: () => context.push('/settings'),
                   ),
                 ),
-
-                // Filters
-                Container(
-                  height: 44,
-                  margin: const EdgeInsets.symmetric(horizontal: 24),
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _buildFilterChip(l10n.all, isDark),
-                      _buildFilterChip('Strategy', isDark),
-                      _buildFilterChip('Party', isDark),
-                    ],
-                  ),
+                ChipSelector(
+                  items: [l10n.all, 'Strategy', 'Party'],
+                  selected: _selectedFilter,
+                  onSelected: (filter) =>
+                      setState(() => _selectedFilter = filter),
                 ),
-
                 const SizedBox(height: 16),
-
-                // List
                 Expanded(
                   child: wishlistProvider.isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : items.isEmpty
-                      ? _buildEmptyState(context, isDark)
+                      ? EmptyState(
+                          icon: Icons.favorite_border,
+                          title: l10n.yourWishlistIsEmpty,
+                          subtitle: l10n.addGamesYouWant,
+                        )
                       : ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           itemCount: items.length,
@@ -129,8 +80,6 @@ class _WishlistScreenState extends State<WishlistScreen> {
                           },
                         ),
                 ),
-
-                // TabBar
                 const BottomTabBar(activeRoute: '/wishlist'),
               ],
             ),
@@ -149,67 +98,16 @@ class _WishlistScreenState extends State<WishlistScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, bool isDark) {
-    final isSelected = _selectedFilter == label;
-
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedFilter = label),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.primary
-                : isDark
-                ? Colors.white.withValues(alpha: 0.05)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(9999),
-            border: Border.all(
-              color: isSelected
-                  ? AppColors.primary
-                  : isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.1),
-            ),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected
-                  ? Colors.white
-                  : isDark
-                  ? AppColors.textDark
-                  : AppColors.textLight,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildWishlistItem(
     BuildContext context,
     bool isDark,
     WishlistItem item,
   ) {
-    return Container(
+    return ThemeContainer(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Colors.black.withValues(alpha: 0.05),
-        ),
-      ),
       child: Row(
         children: [
-          // Image
           GestureDetector(
             onTap: () => context.push('/edit-wishlist/${item.id}'),
             child: Stack(
@@ -244,10 +142,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
               ],
             ),
           ),
-
           const SizedBox(width: 16),
-
-          // Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,21 +185,30 @@ class _WishlistScreenState extends State<WishlistScreen> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    _buildActionButton(
+                    IconActionButton(
                       icon: Icons.shopping_cart,
-                      color: Colors.orange,
+                      isDark: isDark,
+                      size: 36,
+                      backgroundColor: Colors.orange.withValues(alpha: 0.1),
+                      iconColor: Colors.orange,
                       onTap: () => _launchUrl(item.purchaseUrl),
                     ),
                     const SizedBox(width: 8),
-                    _buildActionButton(
+                    IconActionButton(
                       icon: Icons.edit,
-                      color: Colors.blue,
+                      isDark: isDark,
+                      size: 36,
+                      backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                      iconColor: Colors.blue,
                       onTap: () => context.push('/edit-wishlist/${item.id}'),
                     ),
                     const Spacer(),
-                    _buildActionButton(
+                    IconActionButton(
                       icon: Icons.delete,
-                      color: Colors.grey,
+                      isDark: isDark,
+                      size: 36,
+                      backgroundColor: Colors.grey.withValues(alpha: 0.1),
+                      iconColor: Colors.grey,
                       onTap: () =>
                           context.read<WishlistProvider>().deleteItem(item.id),
                     ),
@@ -318,64 +222,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
     );
   }
 
-  Widget _buildActionButton({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Icon(icon, size: 18, color: color),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context, bool isDark) {
-    final l10n = AppLocalizations.of(context);
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.favorite_border,
-            size: 64,
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.yourWishlistIsEmpty,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textDark : AppColors.textLight,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.addGamesYouWant,
-            style: TextStyle(
-              fontSize: 14,
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildItemImage(WishlistItem item) {
-    // Prioridade: imageUrl > imagePath > placeholder
     if (item.imageUrl != null && item.imageUrl!.isNotEmpty) {
       return Image.network(
         item.imageUrl!,

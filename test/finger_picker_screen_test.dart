@@ -8,6 +8,10 @@ void main() {
   testWidgets('FingerPickerScreen renders correctly with localization', (
     WidgetTester tester,
   ) async {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('en'),
@@ -31,6 +35,10 @@ void main() {
   testWidgets('FingerPickerScreen shows instruction text initially', (
     WidgetTester tester,
   ) async {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('en'),
@@ -48,6 +56,6 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Tap screen to add fingers'), findsNWidgets(2));
+    expect(find.text('Tap screen to add fingers'), findsOneWidget);
   });
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../../core/components/components.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/models.dart';
@@ -54,119 +55,120 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            SliverAppBar(
-              expandedHeight: 300,
-              pinned: true,
-              backgroundColor: Colors.transparent,
-              leading: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: IconButton(
-                    onPressed: () => context.pop(),
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: IconButton(
-                      onPressed: _editGame,
-                      icon: const Icon(Icons.edit, color: Colors.white),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: IconButton(
-                      onPressed: _deleteGame,
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                    ),
-                  ),
-                ),
-              ],
-              flexibleSpace: FlexibleSpaceBar(
-                background: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    _game!.imagePath != null
-                        ? Image.file(File(_game!.imagePath!), fit: BoxFit.cover)
-                        : Container(
-                            color: AppColors.primary.withValues(alpha: 0.2),
-                            child: const Icon(
-                              Icons.image_not_supported,
-                              size: 100,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(alpha: 0.7),
-                          ],
-                          stops: const [0.5, 1.0],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildSliverAppBar(isDark),
             SliverToBoxAdapter(
               child: Transform.translate(
                 offset: const Offset(0, -30),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.backgroundDark
-                        : AppColors.backgroundLight,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(30),
+                child: _buildContent(l10n, isDark),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSliverAppBar(bool isDark) {
+    return SliverAppBar(
+      expandedHeight: 300,
+      pinned: true,
+      backgroundColor: Colors.transparent,
+      leading: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: IconButton(
+            onPressed: () => context.pop(),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          ),
+        ),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: IconButton(
+              onPressed: _editGame,
+              icon: const Icon(Icons.edit, color: Colors.white),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: IconButton(
+              onPressed: _deleteGame,
+              icon: const Icon(Icons.delete, color: Colors.red),
+            ),
+          ),
+        ),
+      ],
+      flexibleSpace: FlexibleSpaceBar(
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            _game!.imagePath != null
+                ? Image.file(File(_game!.imagePath!), fit: BoxFit.cover)
+                : Container(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                    child: const Icon(
+                      Icons.image_not_supported,
+                      size: 100,
+                      color: AppColors.primary,
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 8),
-                        _buildTitleSection(isDark),
-                        const SizedBox(height: 16),
-                        _buildStatsRow(l10n, isDark),
-                        const SizedBox(height: 32),
-                        _buildStatsCards(l10n, isDark),
-                        const SizedBox(height: 32),
-                        _buildLastPlayedSection(l10n, isDark),
-                        const SizedBox(height: 32),
-                        _buildPlayButtons(context, l10n),
-                        const SizedBox(height: 100),
-                      ],
-                    ),
-                  ),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.7),
+                  ],
+                  stops: const [0.5, 1.0],
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(AppLocalizations l10n, bool isDark) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8),
+            _buildTitleSection(isDark),
+            const SizedBox(height: 16),
+            _buildStatsRow(l10n, isDark),
+            const SizedBox(height: 32),
+            _buildStatsCards(l10n, isDark),
+            const SizedBox(height: 32),
+            _buildLastPlayedSection(l10n, isDark),
+            const SizedBox(height: 32),
+            _buildPlayButtons(context, l10n),
+            const SizedBox(height: 100),
           ],
         ),
       ),
@@ -261,15 +263,9 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   }
 
   Widget _buildStatCard(bool isDark, String value, String label) {
-    return Container(
+    return ThemeContainer(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.05)
-            : AppColors.backgroundLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.05)),
-      ),
+      useSecondaryBackground: true,
       child: Column(
         children: [
           Text(
@@ -310,48 +306,11 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        Container(
+        ThemeContainer(
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
-          ),
           child: Row(
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      _game!.lastPlayed != null
-                          ? _getMonthAbbreviation(_game!.lastPlayed!)
-                          : 'N/A',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      _game!.lastPlayed != null
-                          ? '${_game!.lastPlayed!.day}'
-                          : '-',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildDateBox(),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -388,68 +347,96 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 
+  Widget _buildDateBox() {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            _game!.lastPlayed != null
+                ? _getMonthAbbreviation(_game!.lastPlayed!)
+                : 'N/A',
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          Text(
+            _game!.lastPlayed != null ? '${_game!.lastPlayed!.day}' : '-',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPlayButtons(BuildContext context, AppLocalizations l10n) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Expanded(
-          child: ElevatedButton.icon(
+          child: AppButton(
+            label: l10n.won,
+            icon: Icons.emoji_events,
             onPressed: () => _recordPlay(context, true),
-            icon: const Icon(Icons.emoji_events),
-            label: Text(l10n.won),
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: ElevatedButton.icon(
+          child: AppButton(
+            label: l10n.lost,
+            icon: Icons.sentiment_dissatisfied,
+            isSecondary: true,
             onPressed: () => _recordPlay(context, false),
-            icon: const Icon(Icons.close),
-            label: Text(l10n.lost),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.grey[300],
-              foregroundColor: isDark
-                  ? AppColors.textDark
-                  : AppColors.textLight,
-            ),
           ),
         ),
       ],
     );
   }
 
-  Future<void> _recordPlay(BuildContext context, bool won) async {
-    await context.read<GameProvider>().recordPlay(_game!.id, won);
-    await _loadGame();
-  }
-
-  void _editGame() {
-    context.push('/edit-game/${_game!.id}');
-  }
+  void _editGame() => context.push('/edit-game/${_game!.id}');
 
   void _deleteGame() {
-    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.confirmDelete),
-        content: Text(l10n.deleteGameConfirm),
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Game'),
+        content: Text('Are you sure you want to delete "${_game!.title}"?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          TextButton(
             onPressed: () {
               context.read<GameProvider>().deleteGame(_game!.id);
-              context.pop();
+              Navigator.pop(ctx);
               context.pop();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text(l10n.delete),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
+      ),
+    );
+  }
+
+  void _recordPlay(BuildContext context, bool won) {
+    context.read<GameProvider>().recordPlay(_game!.id, won);
+    _loadGame();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(won ? 'Recorded win!' : 'Recorded loss!'),
+        backgroundColor: AppColors.primary,
       ),
     );
   }
@@ -486,14 +473,10 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   }
 
   String _getTimeAgo(DateTime date, AppLocalizations l10n) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) return l10n.today;
-    if (difference.inDays == 1) return l10n.yesterday;
-    if (difference.inDays < 7) return '${difference.inDays} ${l10n.daysAgo}';
-    if (difference.inDays < 30)
-      return '${(difference.inDays / 7).floor()} ${l10n.weeksAgo}';
-    return '${(difference.inDays / 30).floor()} ${l10n.monthsAgo}';
+    final diff = DateTime.now().difference(date);
+    if (diff.inDays > 30) return '${(diff.inDays / 30).floor()} months ago';
+    if (diff.inDays > 0) return '${diff.inDays} days ago';
+    if (diff.inHours > 0) return '${diff.inHours} hours ago';
+    return 'recently';
   }
 }

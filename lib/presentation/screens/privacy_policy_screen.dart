@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/components/components.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/i18n/i18n.dart';
 
@@ -12,8 +13,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).languageCode;
 
-    final content = _getContent(locale);
-
     return Scaffold(
       backgroundColor: isDark
           ? AppColors.backgroundDark
@@ -21,26 +20,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () => context.pop(),
-                    icon: const Icon(Icons.arrow_back_ios),
-                    color: AppColors.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l10n.privacyPolicy,
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
+            AppHeader(
+              title: l10n.privacyPolicy,
+              leading: IconActionButton(
+                icon: Icons.arrow_back_ios,
+                isDark: isDark,
+                onTap: () => context.pop(),
               ),
             ),
             Expanded(
@@ -48,51 +33,19 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: content
-                      .map((section) => _buildSection(context, section, isDark))
+                  children: _getContent(locale)
+                      .map(
+                        (section) => PolicySection(
+                          title: section['title']!,
+                          content: section['content']!,
+                        ),
+                      )
                       .toList(),
                 ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSection(
-    BuildContext context,
-    Map<String, String> section,
-    bool isDark,
-  ) {
-    final title = section['title']!;
-    final contentText = section['content']!;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textDark : AppColors.textLight,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            contentText,
-            style: TextStyle(
-              fontSize: 15,
-              height: 1.5,
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
-            ),
-          ),
-        ],
       ),
     );
   }

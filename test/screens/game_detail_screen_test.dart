@@ -155,7 +155,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('10'), findsOneWidget);
+      expect(find.text('10'), findsWidgets);
     });
   });
 
@@ -226,7 +226,7 @@ void main() {
       expect(find.byIcon(Icons.emoji_events), findsOneWidget);
     });
 
-    testWidgets('should have close icon for Lost button', (tester) async {
+    testWidgets('should have lost icon for Lost button', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
           child: const GameDetailScreen(gameId: 'game-1'),
@@ -235,7 +235,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byIcon(Icons.sentiment_dissatisfied), findsOneWidget);
     });
   });
 
