@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -103,178 +101,35 @@ class _WishlistScreenState extends State<WishlistScreen> {
     bool isDark,
     WishlistItem item,
   ) {
-    return ThemeContainer(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => context.push('/edit-wishlist/${item.id}'),
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: _buildItemImage(item),
-                ),
-                if (item.tag != null)
-                  Positioned(
-                    top: -4,
-                    left: -4,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        item.tag!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (item.price != null)
-                      Text(
-                        item.price!,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Added on ${_formatDate(item.createdAt)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    IconActionButton(
-                      icon: Icons.shopping_cart,
-                      isDark: isDark,
-                      size: 36,
-                      backgroundColor: Colors.orange.withValues(alpha: 0.1),
-                      iconColor: Colors.orange,
-                      onTap: () => _launchUrl(item.purchaseUrl),
-                    ),
-                    const SizedBox(width: 8),
-                    IconActionButton(
-                      icon: Icons.edit,
-                      isDark: isDark,
-                      size: 36,
-                      backgroundColor: Colors.blue.withValues(alpha: 0.1),
-                      iconColor: Colors.blue,
-                      onTap: () => context.push('/edit-wishlist/${item.id}'),
-                    ),
-                    const Spacer(),
-                    IconActionButton(
-                      icon: Icons.delete,
-                      isDark: isDark,
-                      size: 36,
-                      backgroundColor: Colors.grey.withValues(alpha: 0.1),
-                      iconColor: Colors.grey,
-                      onTap: () =>
-                          context.read<WishlistProvider>().deleteItem(item.id),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return ListItem(
+      title: item.title,
+      subtitle: 'Added on ${_formatDate(item.createdAt)}',
+      localImagePath: item.imagePath,
+      networkImageUrl: item.imageUrl,
+      tag: item.tag,
+      trailingText: item.price,
+      onTap: () => context.push('/edit-wishlist/${item.id}'),
+      actions: [
+        ListItemAction(
+          icon: Icons.shopping_cart,
+          backgroundColor: Colors.orange.withValues(alpha: 0.1),
+          iconColor: Colors.orange,
+          onTap: () => _launchUrl(item.purchaseUrl),
+        ),
+        ListItemAction(
+          icon: Icons.edit,
+          backgroundColor: Colors.blue.withValues(alpha: 0.1),
+          iconColor: Colors.blue,
+          onTap: () => context.push('/edit-wishlist/${item.id}'),
+        ),
+        ListItemAction(
+          icon: Icons.delete,
+          backgroundColor: Colors.grey.withValues(alpha: 0.1),
+          iconColor: Colors.grey,
+          onTap: () => context.read<WishlistProvider>().deleteItem(item.id),
+        ),
+      ],
     );
-  }
-
-  Widget _buildItemImage(WishlistItem item) {
-    if (item.imageUrl != null && item.imageUrl!.isNotEmpty) {
-      return Image.network(
-        item.imageUrl!,
-        width: 80,
-        height: 80,
-        fit: BoxFit.cover,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
-            width: 80,
-            height: 80,
-            color: AppColors.primary.withValues(alpha: 0.1),
-            child: const Center(
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            width: 80,
-            height: 80,
-            color: AppColors.primary.withValues(alpha: 0.1),
-            child: const Icon(Icons.broken_image, color: AppColors.primary),
-          );
-        },
-      );
-    } else if (item.imagePath != null) {
-      return Image.file(
-        File(item.imagePath!),
-        width: 80,
-        height: 80,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            width: 80,
-            height: 80,
-            color: AppColors.primary.withValues(alpha: 0.1),
-            child: const Icon(
-              Icons.image_not_supported,
-              color: AppColors.primary,
-            ),
-          );
-        },
-      );
-    } else {
-      return Container(
-        width: 80,
-        height: 80,
-        color: AppColors.primary.withValues(alpha: 0.1),
-        child: const Icon(Icons.image_not_supported, color: AppColors.primary),
-      );
-    }
   }
 
   Future<void> _launchUrl(String? url) async {

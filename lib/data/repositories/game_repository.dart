@@ -1,11 +1,12 @@
 import '../database/database_helper.dart';
+import '../database/database_interface.dart';
 import '../models/game.dart';
 import 'interfaces/game_repository_interface.dart';
 
 class GameRepository implements IGameRepository {
-  final DatabaseHelper _db;
+  final DatabaseInterface _db;
 
-  GameRepository({DatabaseHelper? databaseHelper})
+  GameRepository({DatabaseInterface? databaseHelper})
     : _db = databaseHelper ?? DatabaseHelper.instance;
 
   @override

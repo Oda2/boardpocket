@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -73,61 +71,36 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
       expandedHeight: 300,
       pinned: true,
       backgroundColor: Colors.transparent,
-      leading: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: IconButton(
-            onPressed: () => context.pop(),
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          ),
-        ),
+      leading: _buildCircleButton(
+        icon: Icons.arrow_back_ios_new,
+        onPressed: () => context.pop(),
       ),
       actions: [
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: IconButton(
-              onPressed: _editGame,
-              icon: const Icon(Icons.edit, color: Colors.white),
-            ),
-          ),
+        _buildCircleButton(
+          icon: Icons.edit,
+          onPressed: () => context.push('/edit-game/${_game!.id}'),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: IconButton(
-              onPressed: _deleteGame,
-              icon: const Icon(Icons.delete, color: Colors.red),
-            ),
-          ),
+        _buildCircleButton(
+          icon: Icons.delete,
+          color: Colors.red,
+          onPressed: _deleteGame,
         ),
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
           children: [
-            _game!.imagePath != null
-                ? Image.file(File(_game!.imagePath!), fit: BoxFit.cover)
-                : Container(
-                    color: AppColors.primary.withValues(alpha: 0.2),
-                    child: const Icon(
-                      Icons.image_not_supported,
-                      size: 100,
-                      color: AppColors.primary,
-                    ),
-                  ),
+            AdaptiveImage(
+              localPath: _game!.imagePath,
+              placeholder: Container(
+                color: AppColors.primary.withValues(alpha: 0.2),
+                child: const Icon(
+                  Icons.image_not_supported,
+                  size: 100,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -142,6 +115,26 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCircleButton({
+    required IconData icon,
+    VoidCallback? onPressed,
+    Color? color,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: IconButton(
+          onPressed: onPressed,
+          icon: Icon(icon, color: color ?? Colors.white),
         ),
       ),
     );
@@ -163,7 +156,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             const SizedBox(height: 16),
             _buildStatsRow(l10n, isDark),
             const SizedBox(height: 32),
-            _buildStatsCards(l10n, isDark),
+            _buildStatsCards(l10n),
             const SizedBox(height: 32),
             _buildLastPlayedSection(l10n, isDark),
             const SizedBox(height: 32),
@@ -240,56 +233,23 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 
-  Widget _buildStatsCards(AppLocalizations l10n, bool isDark) {
+  Widget _buildStatsCards(AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(
-          child: _buildStatCard(
-            isDark,
-            '${_game!.totalPlays}',
-            l10n.totalPlays,
+          child: StatCard(
+            value: '${_game!.totalPlays}',
+            label: l10n.totalPlays,
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: _buildStatCard(
-            isDark,
-            '${_game!.winRate.toStringAsFixed(0)}%',
-            l10n.winRate,
+          child: StatCard(
+            value: '${_game!.winRate.toStringAsFixed(0)}%',
+            label: l10n.winRate,
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildStatCard(bool isDark, String value, String label) {
-    return ThemeContainer(
-      padding: const EdgeInsets.all(20),
-      useSecondaryBackground: true,
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
-              letterSpacing: 1,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -310,7 +270,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
           padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              _buildDateBox(),
+              DateBox(date: _game!.lastPlayed),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -347,58 +307,19 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     );
   }
 
-  Widget _buildDateBox() {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            _game!.lastPlayed != null
-                ? _getMonthAbbreviation(_game!.lastPlayed!)
-                : 'N/A',
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          Text(
-            _game!.lastPlayed != null ? '${_game!.lastPlayed!.day}' : '-',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildPlayButtons(BuildContext context, AppLocalizations l10n) {
-    return Row(
-      children: [
-        Expanded(
-          child: AppButton(
-            label: l10n.won,
-            icon: Icons.emoji_events,
-            onPressed: () => _recordPlay(context, true),
-          ),
+    return ActionButtonsRow(
+      buttons: [
+        ActionButtonConfig(
+          label: l10n.won,
+          icon: Icons.emoji_events,
+          onPressed: () => _recordPlay(context, true),
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: AppButton(
-            label: l10n.lost,
-            icon: Icons.sentiment_dissatisfied,
-            isSecondary: true,
-            onPressed: () => _recordPlay(context, false),
-          ),
+        ActionButtonConfig(
+          label: l10n.lost,
+          icon: Icons.sentiment_dissatisfied,
+          isSecondary: true,
+          onPressed: () => _recordPlay(context, false),
         ),
       ],
     );
@@ -439,24 +360,6 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
         backgroundColor: AppColors.primary,
       ),
     );
-  }
-
-  String _getMonthAbbreviation(DateTime date) {
-    const months = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DEC',
-    ];
-    return months[date.month - 1];
   }
 
   String _getDayName(DateTime date) {

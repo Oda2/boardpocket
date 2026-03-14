@@ -120,7 +120,7 @@ class _RankingScreenState extends State<RankingScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildGamesTable(isDark),
+          _buildGamesList(isDark),
           const SizedBox(height: 24),
         ],
       ),
@@ -336,70 +336,34 @@ class _RankingScreenState extends State<RankingScreen> {
     );
   }
 
-  Widget _buildGamesTable(bool isDark) {
+  Widget _buildGamesList(bool isDark) {
     return Column(
       children: _games.asMap().entries.map((entry) {
         final index = entry.key;
         final game = entry.value;
-        return ThemeContainer(
+        return ListItem(
+          title: game.title,
+          subtitle:
+              '${game.totalPlays} plays • ${game.winRate.toStringAsFixed(0)}% win rate',
+          localImagePath: game.imagePath,
+          tag: index < 3 ? _getRankLabel(index) : null,
           margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: _getRankColor(index).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Center(
-                  child: Text(
-                    '${index + 1}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: _getRankColor(index),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      game.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '${game.totalPlays} plays • ${game.winRate.toStringAsFixed(0)}% win rate',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.emoji_events,
-                color: index < 3 ? Colors.amber : Colors.grey,
-                size: 20,
-              ),
-            ],
+          padding: const EdgeInsets.all(12),
+          imageSize: 48,
+          trailingWidget: Icon(
+            Icons.emoji_events,
+            color: index < 3 ? Colors.amber : Colors.grey,
+            size: 20,
           ),
         );
       }).toList(),
     );
   }
 
-  Color _getRankColor(int index) {
-    if (index == 0) return Colors.amber;
-    if (index == 1) return Colors.grey;
-    if (index == 2) return Colors.brown;
-    return AppColors.primary;
+  String _getRankLabel(int index) {
+    if (index == 0) return '1st';
+    if (index == 1) return '2nd';
+    if (index == 2) return '3rd';
+    return '';
   }
 }

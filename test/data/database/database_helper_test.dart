@@ -18,10 +18,12 @@ String nextId() {
 
 Future<void> clearTables() async {
   try {
-    final db = await DatabaseHelper.instance.database;
-    await db.delete('games', where: null);
-    await db.delete('wishlist', where: null);
-    await db.delete('players', where: null);
+    final db = await DatabaseHelper.instance.rawDatabase;
+    if (db != null) {
+      await db.delete('games', where: null);
+      await db.delete('wishlist', where: null);
+      await db.delete('players', where: null);
+    }
   } catch (_) {}
 }
 
@@ -641,8 +643,8 @@ void main() {
   group('DatabaseHelper - Database Creation', () {
     test('should create games table with all columns', () async {
       final dbHelper = DatabaseHelper.instance;
-      final db = await dbHelper.database;
-      await db.insert('games', createTestGame());
+      final db = await dbHelper.rawDatabase;
+      await db!.insert('games', createTestGame());
 
       final games = await dbHelper.getAllGames();
       expect(games.isNotEmpty, true);
@@ -658,8 +660,8 @@ void main() {
 
     test('should create wishlist table with all columns', () async {
       final dbHelper = DatabaseHelper.instance;
-      final db = await dbHelper.database;
-      await db.insert('wishlist', createTestWishlistItem());
+      final db = await dbHelper.rawDatabase;
+      await db!.insert('wishlist', createTestWishlistItem());
 
       final items = await dbHelper.getAllWishlistItems();
       expect(items.isNotEmpty, true);
@@ -667,8 +669,8 @@ void main() {
 
     test('should create players table with all columns', () async {
       final dbHelper = DatabaseHelper.instance;
-      final db = await dbHelper.database;
-      await db.insert('players', createTestPlayer());
+      final db = await dbHelper.rawDatabase;
+      await db!.insert('players', createTestPlayer());
 
       final players = await dbHelper.getAllPlayers();
       expect(players.isNotEmpty, true);
@@ -676,8 +678,8 @@ void main() {
 
     test('should have default settings from database creation', () async {
       final dbHelper = DatabaseHelper.instance;
-      final db = await dbHelper.database;
-      await db.delete('settings', where: null);
+      final db = await dbHelper.rawDatabase;
+      await db!.delete('settings', where: null);
 
       await db.insert('settings', {'key': 'dark_mode', 'value': 'true'});
       await db.insert('settings', {'key': 'language', 'value': 'en'});
@@ -1321,9 +1323,9 @@ void main() {
 
     test('should database have version 2', () async {
       final dbHelper = DatabaseHelper.instance;
-      final db = await dbHelper.database;
+      final db = await dbHelper.rawDatabase;
 
-      final version = await db.getVersion();
+      final version = await db!.getVersion();
       expect(version, 2);
     });
   });
@@ -1509,6 +1511,15 @@ void main() {
       final players = await dbHelper.getAllPlayers();
       expect(players[0]['name'], 'Second');
       expect(players[1]['name'], 'First');
+    });
+  });
+
+  group('DatabaseHelper - Close', () {
+    test('should close database without error', () async {
+      final dbHelper = DatabaseHelper.instance;
+      await dbHelper.insertGame(createTestGame(title: 'Test Game'));
+
+      await dbHelper.close();
     });
   });
 }

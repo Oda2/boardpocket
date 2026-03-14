@@ -26,7 +26,6 @@ class _NameDrawScreenState extends State<NameDrawScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PlayerProvider>().loadPlayers();
     });
-
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 100),
@@ -52,9 +51,7 @@ class _NameDrawScreenState extends State<NameDrawScreen>
     int count = 0;
     Future.doWhile(() async {
       await Future.delayed(const Duration(milliseconds: 100));
-      setState(() {
-        _winner = players[count % players.length].name;
-      });
+      setState(() => _winner = players[count % players.length].name);
       count++;
       return count < 20;
     }).then((_) {
@@ -64,6 +61,13 @@ class _NameDrawScreenState extends State<NameDrawScreen>
       });
       _animationController.forward(from: 0);
     });
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -83,7 +87,7 @@ class _NameDrawScreenState extends State<NameDrawScreen>
             Column(
               children: [
                 _buildHeader(l10n, isDark),
-                _buildInput(l10n, isDark),
+                _buildInput(l10n),
                 _buildPlayersList(players, isDark),
                 const Spacer(),
                 _buildDrawButton(l10n, isDark, players),
@@ -135,21 +139,21 @@ class _NameDrawScreenState extends State<NameDrawScreen>
     );
   }
 
-  Widget _buildInput(AppLocalizations l10n, bool isDark) {
+  Widget _buildInput(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
           Expanded(
-            child: AppTextField(
+            child: TextFieldInput(
               controller: _nameController,
               hint: l10n.enterPlayerName,
               icon: Icons.person_add,
-              onSubmitted: (_) => _addPlayer(),
+              onChanged: (_) {},
             ),
           ),
           const SizedBox(width: 12),
-          IconActionButton(icon: Icons.add, isDark: isDark, onTap: _addPlayer),
+          IconActionButton(icon: Icons.add, isDark: false, onTap: _addPlayer),
         ],
       ),
     );
@@ -157,7 +161,7 @@ class _NameDrawScreenState extends State<NameDrawScreen>
 
   Widget _buildPlayersList(List players, bool isDark) {
     if (players.isEmpty) {
-      return Expanded(
+      return const Expanded(
         child: EmptyState(
           icon: Icons.group_add,
           title: 'No players yet',
@@ -172,41 +176,41 @@ class _NameDrawScreenState extends State<NameDrawScreen>
         itemCount: players.length,
         itemBuilder: (context, index) {
           final player = players[index];
-          return ThemeContainer(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-                  child: Text(
-                    player.name[0].toUpperCase(),
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    player.name,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-                IconActionButton(
-                  icon: Icons.delete_outline,
-                  isDark: isDark,
-                  size: 32,
-                  backgroundColor: Colors.red.withValues(alpha: 0.1),
-                  iconColor: Colors.red,
-                  onTap: () =>
-                      context.read<PlayerProvider>().deletePlayer(player.id),
-                ),
-              ],
-            ),
-          );
+          return _buildPlayerItem(player, isDark);
         },
+      ),
+    );
+  }
+
+  Widget _buildPlayerItem(dynamic player, bool isDark) {
+    return ThemeContainer(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+            child: Text(
+              player.name[0].toUpperCase(),
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              player.name,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          IconActionButton(
+            icon: Icons.delete_outline,
+            isDark: isDark,
+            onTap: () => context.read<PlayerProvider>().deletePlayer(player.id),
+          ),
+        ],
       ),
     );
   }
@@ -214,58 +218,27 @@ class _NameDrawScreenState extends State<NameDrawScreen>
   Widget _buildDrawButton(AppLocalizations l10n, bool isDark, List players) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: AppButton(
-        label: _isDrawing ? 'Drawing...' : 'Draw Winner',
-        icon: Icons.casino,
-        onPressed: players.length >= 2 && !_isDrawing ? _drawWinner : null,
+      child: SizedBox(
+        width: double.infinity,
+        child: AppButton(
+          label: players.isEmpty ? 'Add Players' : 'Draw Winner',
+          icon: Icons.casino,
+          onPressed: players.isEmpty ? null : _drawWinner,
+        ),
       ),
     );
   }
 
   Widget _buildWinnerOverlay(AppLocalizations l10n, bool isDark) {
     return Container(
-      color: Colors.black54,
+      color: Colors.black.withValues(alpha: 0.7),
       child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Winner!',
-              style: TextStyle(color: Colors.white70, fontSize: 18),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _winner!,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 32),
-            AppButton(
-              label: 'Draw Again',
-              icon: Icons.refresh,
-              onPressed: _drawWinner,
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () => setState(() => _winner = null),
-              child: const Text(
-                'Close',
-                style: TextStyle(color: Colors.white70),
-              ),
-            ),
-          ],
+        child: AnimatedResultCard(
+          title: _winner,
+          subtitle: 'Winner!',
+          isAnimating: _isDrawing,
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _animationController.dispose();
-    super.dispose();
   }
 }

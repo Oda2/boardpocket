@@ -33,7 +33,6 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -43,7 +42,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(l10n, isDark),
+            _buildHeader(isDark),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -52,7 +51,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                   children: [
                     _buildBadge(isDark),
                     const SizedBox(height: 32),
-                    _buildChallengeCard(l10n, isDark),
+                    _buildChallengeCard(isDark),
                     const SizedBox(height: 32),
                     AppButton(
                       label: 'New Challenge',
@@ -69,7 +68,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     );
   }
 
-  Widget _buildHeader(AppLocalizations l10n, bool isDark) {
+  Widget _buildHeader(bool isDark) {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Row(
@@ -80,11 +79,11 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
             isDark: isDark,
             onTap: () => context.pop(),
           ),
-          Text(
-            l10n.gameMaster,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          const Text(
+            'Challenge',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          IconActionButton(icon: Icons.history, isDark: isDark, onTap: () {}),
+          const SizedBox(width: 48),
         ],
       ),
     );
@@ -94,18 +93,18 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
+        color: _getBadgeColor().withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.casino, color: AppColors.primary, size: 20),
+          Icon(_getBadgeIcon(), color: _getBadgeColor(), size: 16),
           const SizedBox(width: 8),
           Text(
-            'Challenge',
+            _getBadgeLabel(),
             style: TextStyle(
-              color: AppColors.primary,
+              color: _getBadgeColor(),
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -114,20 +113,16 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     );
   }
 
-  Widget _buildChallengeCard(AppLocalizations l10n, bool isDark) {
+  Widget _buildChallengeCard(bool isDark) {
     return ThemeContainer(
       padding: const EdgeInsets.all(32),
       child: Column(
         children: [
-          Icon(Icons.emoji_events, size: 64, color: AppColors.primary),
+          Icon(_getChallengeIcon(), size: 64, color: AppColors.primary),
           const SizedBox(height: 24),
           Text(
             _currentChallenge?.title ?? '',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textDark : AppColors.textLight,
-            ),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -144,5 +139,59 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         ],
       ),
     );
+  }
+
+  Color _getBadgeColor() {
+    switch (_currentChallenge?.category) {
+      case 'Easy':
+        return Colors.green;
+      case 'Medium':
+        return Colors.orange;
+      case 'Hard':
+        return Colors.red;
+      default:
+        return AppColors.primary;
+    }
+  }
+
+  IconData _getBadgeIcon() {
+    switch (_currentChallenge?.category) {
+      case 'Easy':
+        return Icons.sentiment_satisfied;
+      case 'Medium':
+        return Icons.sentiment_neutral;
+      case 'Hard':
+        return Icons.sentiment_very_dissatisfied;
+      default:
+        return Icons.star;
+    }
+  }
+
+  String _getBadgeLabel() {
+    return _currentChallenge?.category ?? 'Challenge';
+  }
+
+  IconData _getChallengeIcon() {
+    final iconName = _currentChallenge?.iconName ?? '';
+    switch (iconName) {
+      case 'restaurant':
+        return Icons.restaurant;
+      case 'cake':
+        return Icons.cake;
+      case 'flight':
+        return Icons.flight;
+      case 'battery_alert':
+        return Icons.battery_alert;
+      case 'height':
+        return Icons.height;
+      case 'sort_by_alpha':
+        return Icons.sort_by_alpha;
+      case 'pets':
+        return Icons.pets;
+      case 'checkroom':
+        return Icons.checkroom;
+      default:
+        return Icons.star;
+    }
   }
 }

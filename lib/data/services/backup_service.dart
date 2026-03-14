@@ -4,13 +4,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../database/database_helper.dart';
+import '../database/database_interface.dart';
 
 class BackupService {
-  DatabaseHelper? _dbOverride;
+  DatabaseInterface? _dbOverride;
 
-  DatabaseHelper get _db => _dbOverride ?? DatabaseHelper.instance;
+  DatabaseInterface get _db => _dbOverride ?? DatabaseHelper.instance;
 
-  BackupService({DatabaseHelper? db}) : _dbOverride = db;
+  BackupService({DatabaseInterface? db}) : _dbOverride = db;
 
   Future<String> exportToJson() async {
     final data = await _db.exportAllData();

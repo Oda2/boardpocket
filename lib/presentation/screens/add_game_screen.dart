@@ -8,16 +8,27 @@ import '../../core/theme/app_theme.dart';
 import '../../data/models/models.dart';
 import '../providers/providers.dart';
 
-class AddGameScreen extends StatefulWidget {
+class AddGameScreen extends StatelessWidget {
   final String? gameId;
 
   const AddGameScreen({super.key, this.gameId});
 
   @override
-  State<AddGameScreen> createState() => _AddGameScreenState();
+  Widget build(BuildContext context) {
+    return _GameFormScreen(gameId: gameId);
+  }
 }
 
-class _AddGameScreenState extends State<AddGameScreen> {
+class _GameFormScreen extends StatefulWidget {
+  final String? gameId;
+
+  const _GameFormScreen({this.gameId});
+
+  @override
+  State<_GameFormScreen> createState() => _GameFormScreenState();
+}
+
+class _GameFormScreenState extends State<_GameFormScreen> {
   final _titleController = TextEditingController();
   String? _selectedImagePath;
   int _minPlayers = 1;
@@ -26,6 +37,8 @@ class _AddGameScreenState extends State<AddGameScreen> {
   int _complexity = 3;
   String _category = 'Strategy';
   Game? _existingGame;
+  bool _isLoading = false;
+
   final List<String> _categories = [
     'Strategy',
     'Party',
@@ -34,20 +47,18 @@ class _AddGameScreenState extends State<AddGameScreen> {
     'Co-op',
     'Abstract',
   ];
-
   bool get _isEditing => widget.gameId != null;
 
   @override
   void initState() {
     super.initState();
-    if (_isEditing) {
-      _loadGame();
-    }
+    if (_isEditing) _loadGame();
   }
 
   Future<void> _loadGame() async {
+    setState(() => _isLoading = true);
     final game = await context.read<GameProvider>().getGameById(widget.gameId!);
-    if (game != null) {
+    if (game != null && mounted) {
       setState(() {
         _existingGame = game;
         _titleController.text = game.title;
@@ -57,11 +68,12 @@ class _AddGameScreenState extends State<AddGameScreen> {
         _playTime = game.playTime ?? 60;
         _complexity = (game.complexity ?? 3).toInt();
         _category = game.category;
+        _isLoading = false;
       });
     }
   }
 
-  void _saveGame() {
+  void _save() {
     if (_titleController.text.isEmpty) return;
 
     if (_isEditing && _existingGame != null) {
@@ -99,9 +111,19 @@ class _AddGameScreenState extends State<AddGameScreen> {
   }
 
   @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       backgroundColor: isDark
@@ -110,7 +132,7 @@ class _AddGameScreenState extends State<AddGameScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(context, l10n),
+            _buildHeader(l10n),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
@@ -120,102 +142,55 @@ class _AddGameScreenState extends State<AddGameScreen> {
                     ImageUpload(
                       imagePath: _selectedImagePath,
                       hintText: l10n.uploadCover,
-                      onImageSelected: (path) {
-                        setState(() => _selectedImagePath = path);
-                      },
+                      onImageSelected: (path) =>
+                          setState(() => _selectedImagePath = path),
                     ),
                     const SizedBox(height: 24),
-                    SectionLabel(text: l10n.gameTitle),
-                    const SizedBox(height: 8),
-                    AppTextField(
+                    _buildTextField(
+                      label: l10n.gameTitle,
                       controller: _titleController,
                       hint: l10n.enterGameTitle,
                       icon: Icons.label_outline,
                     ),
                     const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SectionLabel(text: l10n.players),
-                              const SizedBox(height: 8),
-                              _buildPlayerSelector(),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SectionLabel(text: l10n.playTime),
-                              const SizedBox(height: 8),
-                              AppTextField(
-                                hint: '60',
-                                icon: Icons.schedule,
-                                suffixText: 'MINS',
-                                keyboardType: TextInputType.number,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _playTime = int.tryParse(value) ?? 60;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    SectionLabel(text: l10n.category),
-                    const SizedBox(height: 8),
-                    ChipSelector(
-                      items: _categories,
-                      selected: _category,
-                      onSelected: (cat) => setState(() => _category = cat),
-                    ),
-                    const SizedBox(height: 24),
-                    SectionLabel(
-                      text: l10n.complexity,
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          _getComplexityLabel(l10n),
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
+                    _buildRow([
+                      _buildNumberSelector(
+                        label: l10n.players,
+                        value: _minPlayers,
+                        min: 1,
+                        max: _maxPlayers,
+                        onChanged: (v) => setState(() => _minPlayers = v),
                       ),
+                      const SizedBox(width: 16),
+                      _buildNumberSelector(
+                        label: l10n.playTime,
+                        value: _playTime,
+                        min: 5,
+                        max: 480,
+                        suffix: 'm',
+                        onChanged: (v) => setState(() => _playTime = v),
+                      ),
+                    ]),
+                    const SizedBox(height: 24),
+                    _buildChipSelector(
+                      label: l10n.category,
+                      options: _categories,
                     ),
-                    const SizedBox(height: 8),
-                    StarRating(
-                      value: _complexity,
-                      onChanged: (val) => setState(() => _complexity = val),
-                    ),
+                    const SizedBox(height: 24),
+                    _buildStarRating(label: l10n.complexity),
                     const SizedBox(height: 100),
                   ],
                 ),
               ),
             ),
-            _buildSaveButton(l10n, isDark),
+            _buildFooter(l10n, isDark),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
+  Widget _buildHeader(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -238,40 +213,77 @@ class _AddGameScreenState extends State<AddGameScreen> {
     );
   }
 
-  Widget _buildPlayerSelector() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        NumberCounter(
-          value: _minPlayers,
-          min: 1,
-          max: _maxPlayers,
-          onChanged: (val) => setState(() => _minPlayers = val),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            '-',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppColors.textDark
-                  : AppColors.textLight,
-            ),
-          ),
-        ),
-        NumberCounter(
-          value: _maxPlayers,
-          min: _minPlayers,
-          max: 20,
-          onChanged: (val) => setState(() => _maxPlayers = val),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        TextFieldInput(controller: controller, hint: hint, icon: icon),
+      ],
+    );
+  }
+
+  Widget _buildRow(List<Widget> children) {
+    return Row(children: children.map((c) => Expanded(child: c)).toList());
+  }
+
+  Widget _buildNumberSelector({
+    required String label,
+    required int value,
+    required int min,
+    required int max,
+    String? suffix,
+    required ValueChanged<int> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        NumberInput(value: value, min: min, max: max, onChanged: onChanged),
+      ],
+    );
+  }
+
+  Widget _buildChipSelector({
+    required String label,
+    required List<String> options,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        ChipSelectorInput(
+          items: options,
+          selected: _category,
+          onSelected: (c) => setState(() => _category = c),
         ),
       ],
     );
   }
 
-  Widget _buildSaveButton(AppLocalizations l10n, bool isDark) {
+  Widget _buildStarRating({required String label}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        RatingStarsInput(
+          value: _complexity,
+          onChanged: (v) => setState(() => _complexity = v),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFooter(AppLocalizations l10n, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -289,22 +301,9 @@ class _AddGameScreenState extends State<AddGameScreen> {
         child: AppButton(
           label: _isEditing ? l10n.save : l10n.addToCollection,
           icon: _isEditing ? Icons.save : Icons.library_add,
-          onPressed: _saveGame,
+          onPressed: _save,
         ),
       ),
     );
-  }
-
-  String _getComplexityLabel(AppLocalizations l10n) {
-    if (_complexity <= 2) return l10n.light;
-    if (_complexity <= 3) return l10n.medium;
-    if (_complexity <= 4) return l10n.heavy;
-    return l10n.expert;
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    super.dispose();
   }
 }

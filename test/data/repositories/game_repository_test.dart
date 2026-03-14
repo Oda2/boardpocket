@@ -2,135 +2,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:boardpocket/data/repositories/game_repository.dart';
 import 'package:boardpocket/data/database/database_helper.dart';
 import 'package:boardpocket/data/models/game.dart';
-import 'package:sqflite/sqflite.dart';
-
-class MockDatabaseHelper implements DatabaseHelper {
-  final List<Map<String, dynamic>> _games = [];
-
-  @override
-  Future<void> init() async {}
-
-  @override
-  Future<Database> get database async => throw UnimplementedError();
-
-  @override
-  Future<String> insertGame(Map<String, dynamic> game) async {
-    _games.add(game);
-    return '1';
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> getAllGames() async {
-    return List.from(_games);
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> searchGames(String query) async {
-    return _games
-        .where(
-          (g) => (g['title'] as String).toLowerCase().contains(
-            query.toLowerCase(),
-          ),
-        )
-        .toList();
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> getGamesByCategory(String category) async {
-    return _games.where((g) => g['category'] == category).toList();
-  }
-
-  @override
-  Future<List<String>> getDistinctCategories() async {
-    return _games.map((g) => g['category'] as String).toSet().toList();
-  }
-
-  @override
-  Future<Map<String, dynamic>?> getGameById(String id) async {
-    try {
-      return _games.firstWhere((g) => g['id'] == id);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  @override
-  Future<int> updateGame(String id, Map<String, dynamic> game) async {
-    final index = _games.indexWhere((g) => g['id'] == id);
-    if (index >= 0) {
-      _games[index] = game;
-      return 1;
-    }
-    return 0;
-  }
-
-  @override
-  Future<int> deleteGame(String id) async {
-    final initialLength = _games.length;
-    _games.removeWhere((g) => g['id'] == id);
-    return initialLength - _games.length;
-  }
-
-  @override
-  Future<String> insertWishlistItem(Map<String, dynamic> item) async => '1';
-
-  @override
-  Future<List<Map<String, dynamic>>> getAllWishlistItems() async => [];
-
-  @override
-  Future<int> updateWishlistItem(String id, Map<String, dynamic> item) async =>
-      1;
-
-  @override
-  Future<int> deleteWishlistItem(String id) async => 1;
-
-  @override
-  Future<String> insertPlayer(Map<String, dynamic> player) async => '1';
-
-  @override
-  Future<List<Map<String, dynamic>>> getAllPlayers() async => [];
-
-  @override
-  Future<int> deletePlayer(String id) async => 1;
-
-  @override
-  Future<String> getDatabasePath() async => '';
-
-  @override
-  Future<Map<String, dynamic>> exportData() async => {};
-
-  @override
-  Future<void> importData(Map<String, dynamic> data) async {}
-
-  @override
-  Future<int> getDatabaseVersion() async => 2;
-
-  @override
-  DatabaseHelper get instance => this;
-
-  @override
-  Future<void> close() async {}
-
-  @override
-  Future<Map<String, dynamic>> exportAllData() async => {};
-
-  @override
-  Future<void> importAllData(Map<String, dynamic> data) async {}
-
-  @override
-  Future<String?> getSetting(String key) async => null;
-
-  @override
-  Future<int> setSetting(String key, String value) async => 1;
-}
+import '../../helpers/mock_database_interface.dart';
 
 void main() {
   late GameRepository repository;
-  late MockDatabaseHelper mockDb;
+  late MockDatabaseInterface mockDb;
 
   setUp(() {
-    mockDb = MockDatabaseHelper();
-    repository = GameRepository(databaseHelper: mockDb);
+    mockDb = MockDatabaseInterface();
+    final dbHelper = DatabaseHelper.withInterface(mockDb);
+    repository = GameRepository(databaseHelper: dbHelper);
+  });
+
+  tearDown(() {
+    mockDb.clearGames();
   });
 
   group('GameRepository', () {

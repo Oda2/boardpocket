@@ -1,139 +1,21 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:boardpocket/data/services/backup_service.dart';
-import 'package:boardpocket/data/database/database_helper.dart';
-import 'package:sqflite/sqflite.dart';
-
-class MockDatabaseHelper implements DatabaseHelper {
-  final Map<String, List<Map<String, dynamic>>> _data = {
-    'games': [],
-    'wishlist': [],
-    'players': [],
-    'settings': [],
-  };
-
-  bool shouldThrowOnExport = false;
-  bool shouldThrowOnImport = false;
-  String? dbPath;
-
-  @override
-  Future<Database> get database async {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Map<String, dynamic>> exportAllData() async {
-    if (shouldThrowOnExport) {
-      throw Exception('Export error');
-    }
-    return {
-      'games': _data['games'],
-      'wishlist': _data['wishlist'],
-      'players': _data['players'],
-      'settings': _data['settings'],
-      'export_date': DateTime.now().toIso8601String(),
-      'version': 1,
-    };
-  }
-
-  @override
-  Future<void> importAllData(Map<String, dynamic> data) async {
-    if (shouldThrowOnImport) {
-      throw Exception('Import error');
-    }
-    if (data['games'] != null) {
-      _data['games'] = List<Map<String, dynamic>>.from(data['games'] as List);
-    }
-    if (data['wishlist'] != null) {
-      _data['wishlist'] = List<Map<String, dynamic>>.from(
-        data['wishlist'] as List,
-      );
-    }
-    if (data['players'] != null) {
-      _data['players'] = List<Map<String, dynamic>>.from(
-        data['players'] as List,
-      );
-    }
-  }
-
-  @override
-  Future<String> getDatabasePath() async {
-    return dbPath ?? '/mock/path/boardpocket.db';
-  }
-
-  // Unimplemented methods - not needed for tests
-  @override
-  Future<String> insertGame(Map<String, dynamic> game) async => '';
-  @override
-  Future<List<Map<String, dynamic>>> getAllGames() async => [];
-  @override
-  Future<List<Map<String, dynamic>>> searchGames(String query) async => [];
-  @override
-  Future<List<Map<String, dynamic>>> getGamesByCategory(
-    String category,
-  ) async => [];
-  @override
-  Future<List<String>> getDistinctCategories() async => [];
-  @override
-  Future<Map<String, dynamic>?> getGameById(String id) async => null;
-  @override
-  Future<int> updateGame(String id, Map<String, dynamic> game) async => 0;
-  @override
-  Future<int> deleteGame(String id) async => 0;
-  @override
-  Future<String> insertWishlistItem(Map<String, dynamic> item) async => '';
-  @override
-  Future<List<Map<String, dynamic>>> getAllWishlistItems() async => [];
-  @override
-  Future<int> updateWishlistItem(String id, Map<String, dynamic> item) async =>
-      0;
-  @override
-  Future<int> deleteWishlistItem(String id) async => 0;
-  @override
-  Future<String> insertPlayer(Map<String, dynamic> player) async => '';
-  @override
-  Future<List<Map<String, dynamic>>> getAllPlayers() async => [];
-  @override
-  Future<int> deletePlayer(String id) async => 0;
-  @override
-  Future<String?> getSetting(String key) async => null;
-  @override
-  Future<int> setSetting(String key, String value) async => 0;
-  @override
-  Future<void> close() async {}
-
-  // Helper methods for testing
-  void addGame(Map<String, dynamic> game) {
-    _data['games']!.add(game);
-  }
-
-  void addWishlistItem(Map<String, dynamic> item) {
-    _data['wishlist']!.add(item);
-  }
-
-  void addPlayer(Map<String, dynamic> player) {
-    _data['players']!.add(player);
-  }
-
-  void clear() {
-    _data['games']!.clear();
-    _data['wishlist']!.clear();
-    _data['players']!.clear();
-  }
-}
+import 'package:boardpocket/data/database/database_interface.dart';
+import '../helpers/mock_database_interface.dart';
 
 void main() {
   group('BackupService - exportToJson', () {
-    late MockDatabaseHelper mockDb;
+    late MockDatabaseInterface mockDb;
     late BackupService backupService;
 
     setUp(() {
-      mockDb = MockDatabaseHelper();
+      mockDb = MockDatabaseInterface();
       backupService = BackupService(db: mockDb);
     });
 
     test('should export data as JSON string', () async {
-      mockDb.addGame({'id': '1', 'title': 'Game 1', 'players': '2-4'});
+      await mockDb.insertGame({'id': '1', 'title': 'Game 1', 'players': '2-4'});
 
       final result = await backupService.exportToJson();
 
@@ -158,9 +40,9 @@ void main() {
     });
 
     test('should export all data sections', () async {
-      mockDb.addGame({'id': '1'});
-      mockDb.addWishlistItem({'id': '2'});
-      mockDb.addPlayer({'id': '3'});
+      await mockDb.insertGame({'id': '1'});
+      await mockDb.insertWishlistItem({'id': '2'});
+      await mockDb.insertPlayer({'id': '3'});
 
       final result = await backupService.exportToJson();
 
@@ -190,11 +72,11 @@ void main() {
   });
 
   group('BackupService - importFromJson', () {
-    late MockDatabaseHelper mockDb;
+    late MockDatabaseInterface mockDb;
     late BackupService backupService;
 
     setUp(() {
-      mockDb = MockDatabaseHelper();
+      mockDb = MockDatabaseInterface();
       backupService = BackupService(db: mockDb);
     });
 
@@ -210,7 +92,8 @@ void main() {
 
       await backupService.importFromJson(jsonString);
 
-      expect(mockDb._data['games']?.length, 1);
+      final games = await mockDb.getAllGames();
+      expect(games.length, 1);
     });
 
     test('should import games data', () async {
@@ -226,7 +109,8 @@ void main() {
 
       await backupService.importFromJson(jsonString);
 
-      expect(mockDb._data['games']?.length, 2);
+      final games = await mockDb.getAllGames();
+      expect(games.length, 2);
     });
 
     test('should import wishlist data', () async {
@@ -241,7 +125,8 @@ void main() {
 
       await backupService.importFromJson(jsonString);
 
-      expect(mockDb._data['wishlist']?.length, 1);
+      final wishlist = await mockDb.getAllWishlistItems();
+      expect(wishlist.length, 1);
     });
 
     test('should import players data', () async {
@@ -256,7 +141,8 @@ void main() {
 
       await backupService.importFromJson(jsonString);
 
-      expect(mockDb._data['players']?.length, 1);
+      final players = await mockDb.getAllPlayers();
+      expect(players.length, 1);
     });
 
     test('should handle empty JSON structure', () async {
@@ -264,7 +150,8 @@ void main() {
 
       await backupService.importFromJson(jsonString);
 
-      expect(mockDb._data['games']?.isEmpty, isTrue);
+      final games = await mockDb.getAllGames();
+      expect(games.isEmpty, isTrue);
     });
 
     test('should throw on invalid JSON', () async {
@@ -275,7 +162,7 @@ void main() {
     });
 
     test('should overwrite existing data on import', () async {
-      mockDb.addGame({'id': 'old', 'title': 'Old Game'});
+      await mockDb.insertGame({'id': 'old', 'title': 'Old Game'});
 
       final jsonString = jsonEncode({
         'games': [
@@ -288,8 +175,9 @@ void main() {
 
       await backupService.importFromJson(jsonString);
 
-      expect(mockDb._data['games']?.length, 1);
-      expect(mockDb._data['games']?.first['id'], 'new');
+      final games = await mockDb.getAllGames();
+      expect(games.length, 1);
+      expect(games.first['id'], 'new');
     });
 
     test('should handle import error gracefully', () async {
@@ -309,65 +197,47 @@ void main() {
   });
 
   group('BackupService - getDatabasePath', () {
-    late MockDatabaseHelper mockDb;
+    late MockDatabaseInterface mockDb;
     late BackupService backupService;
 
     setUp(() {
-      mockDb = MockDatabaseHelper();
-      mockDb.dbPath = '/test/path/boardpocket.db';
+      mockDb = MockDatabaseInterface();
       backupService = BackupService(db: mockDb);
     });
 
     test('should return database path', () async {
       final result = await backupService.getDatabasePath();
 
-      expect(result, '/test/path/boardpocket.db');
-    });
-
-    test('should return default path when not set', () async {
-      mockDb.dbPath = null;
-
-      final result = await backupService.getDatabasePath();
-
-      expect(result, '/mock/path/boardpocket.db');
+      expect(result, '/mock/path');
     });
   });
 
   group('BackupService - shareBackup', () {
-    late MockDatabaseHelper mockDb;
-
-    setUp(() {
-      mockDb = MockDatabaseHelper();
-    });
-
     test('should have shareBackup method', () {
+      final mockDb = MockDatabaseInterface();
       final backupService = BackupService(db: mockDb);
 
       expect(backupService.shareBackup, isNotNull);
     });
 
     test('should be async method', () async {
+      final mockDb = MockDatabaseInterface();
       final backupService = BackupService(db: mockDb);
 
-      // Just verify the method is async
       expect(backupService.shareBackup(), isA<Future<void>>());
     }, skip: true);
   });
 
   group('BackupService - exportToFile', () {
-    late MockDatabaseHelper mockDb;
-
-    setUp(() {
-      mockDb = MockDatabaseHelper();
-    });
-
     test('should have exportToFile method', () {
+      final mockDb = MockDatabaseInterface();
       final backupService = BackupService(db: mockDb);
 
       expect(backupService.exportToFile, isNotNull);
     });
 
     test('should be async method', () async {
+      final mockDb = MockDatabaseInterface();
       final backupService = BackupService(db: mockDb);
 
       expect(backupService.exportToFile(), isA<Future<void>>());
@@ -375,19 +245,15 @@ void main() {
   });
 
   group('BackupService - importFromFile', () {
-    late MockDatabaseHelper mockDb;
-
-    setUp(() {
-      mockDb = MockDatabaseHelper();
-    });
-
     test('should have importFromFile method', () {
+      final mockDb = MockDatabaseInterface();
       final backupService = BackupService(db: mockDb);
 
       expect(backupService.importFromFile, isNotNull);
     });
 
     test('should return Future<bool>', () async {
+      final mockDb = MockDatabaseInterface();
       final backupService = BackupService(db: mockDb);
 
       expect(backupService.importFromFile(), isA<Future<bool>>());
@@ -395,19 +261,15 @@ void main() {
   });
 
   group('BackupService - shareDatabase', () {
-    late MockDatabaseHelper mockDb;
-
-    setUp(() {
-      mockDb = MockDatabaseHelper();
-    });
-
     test('should have shareDatabase method', () {
+      final mockDb = MockDatabaseInterface();
       final backupService = BackupService(db: mockDb);
 
       expect(backupService.shareDatabase, isNotNull);
     });
 
     test('should be async method', () async {
+      final mockDb = MockDatabaseInterface();
       final backupService = BackupService(db: mockDb);
 
       expect(backupService.shareDatabase(), isA<Future<void>>());
@@ -415,11 +277,11 @@ void main() {
   });
 
   group('BackupService - JSON roundtrip', () {
-    late MockDatabaseHelper mockDb;
+    late MockDatabaseInterface mockDb;
     late BackupService backupService;
 
     setUp(() {
-      mockDb = MockDatabaseHelper();
+      mockDb = MockDatabaseInterface();
       backupService = BackupService(db: mockDb);
     });
 
@@ -438,14 +300,11 @@ void main() {
         'settings': [],
       };
 
-      // First import
       await backupService.importFromJson(jsonEncode(originalData));
 
-      // Export
       final exportedJson = await backupService.exportToJson();
       final exported = jsonDecode(exportedJson) as Map<String, dynamic>;
 
-      // Verify data was preserved
       expect((exported['games'] as List).length, 2);
       expect((exported['wishlist'] as List).length, 1);
       expect((exported['players'] as List).length, 1);
@@ -488,7 +347,7 @@ void main() {
 
   group('BackupService - constructor', () {
     test('should accept database parameter', () {
-      final mockDb = MockDatabaseHelper();
+      final mockDb = MockDatabaseInterface();
       final backupService = BackupService(db: mockDb);
 
       expect(backupService, isNotNull);
