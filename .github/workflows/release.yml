@@ -74,9 +74,6 @@ jobs:
       - name: Download dependencies
         run: flutter pub get
 
-      # android/app/build.gradle.kts resolves BOARD_STORE_FILE relative to
-      # android/app, so the keystore has to live there.
-      #
       # The same keystore must be used for every release. If it changes,
       # Android refuses to update an existing install, and the user has to
       # uninstall first - which deletes their local collection, because
@@ -115,12 +112,22 @@ jobs:
             echo "Using the configured release keystore."
           fi
 
-          cat > android/.env <<EOF
+          # android/app/build.gradle.kts reads rootProject.file("../.env"),
+          # and rootProject is android/, so the file must sit at the REPO ROOT
+          # (android/../.env) - not in android/.
+          # BOARD_STORE_FILE, on the other hand, goes through file() inside
+          # android/app/, so the keystore must live there.
+          cat > .env <<EOF
           BOARD_KEY_ALIAS=${KEY_ALIAS_VALUE:-boardpocket}
           BOARD_KEY_PASSWORD=${KEY_PASSWORD_VALUE:-boardpocket}
           BOARD_STORE_FILE=boardpocket.keystore
           BOARD_STORE_PASSWORD=${STORE_PASSWORD_VALUE:-boardpocket}
           EOF
+
+          if ! grep -q .env .gitignore; then
+            echo "::warning::.env is not git-ignored; refusing to continue."
+            exit 1
+          fi
 
       - name: Resolve version from pubspec
         id: version
@@ -220,9 +227,18 @@ jobs:
     name: Deploy to GitHub Pages
     needs: web
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    # No `environment:` on purpose. GitHub's auto-created `github-pages`
+    # environment ships with a deployment-branch rule that only allows the
+    # default branch, so a tag push is rejected with "not allowed to deploy to
+    # github-pages due to environment protection rules".
+    #
+    # Authentication is handled by the permissions block (pages: write +
+    # id-token: write), not by the environment.
+    #
+    # If you want environment protection (approval rules, history) back, add
+    # `environment: {name: github-pages, url: ...}` and then widen the rule in
+    # Settings > Environments > github-pages > Deployment branches and tags to
+    # allow tags.
     steps:
       - name: Deploy
         id: deployment
