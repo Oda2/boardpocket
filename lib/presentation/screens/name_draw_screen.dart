@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
+import '../../router/router.dart';
+
 import 'package:provider/provider.dart';
+
 import '../../core/components/components.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
@@ -132,7 +135,7 @@ class _NameDrawScreenState extends State<NameDrawScreen>
           IconActionButton(
             icon: Icons.close,
             isDark: isDark,
-            onTap: () => context.pop(),
+            onTap: () => context.popOrGo(),
           ),
         ],
       ),

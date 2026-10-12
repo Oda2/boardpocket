@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
+import '../../router/router.dart';
+
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../core/components/components.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
@@ -95,7 +98,7 @@ class _WishlistFormScreenState extends State<_WishlistFormScreen> {
       );
       context.read<WishlistProvider>().addItem(item);
     }
-    context.pop();
+    context.popOrGo();
   }
 
   @override
@@ -113,7 +116,7 @@ class _WishlistFormScreenState extends State<_WishlistFormScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: AppLoading()));
     }
 
     return Scaffold(
@@ -185,7 +188,7 @@ class _WishlistFormScreenState extends State<_WishlistFormScreen> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () => context.pop(),
+            onPressed: () => context.popOrGo(),
             icon: const Icon(Icons.arrow_back_ios),
             color: AppColors.primary,
           ),
@@ -196,7 +199,10 @@ class _WishlistFormScreenState extends State<_WishlistFormScreen> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          TextButton(onPressed: () => context.pop(), child: Text(l10n.cancel)),
+          TextButton(
+            onPressed: () => context.popOrGo(),
+            child: Text(l10n.cancel),
+          ),
         ],
       ),
     );

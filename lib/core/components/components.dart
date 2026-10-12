@@ -1,6 +1,8 @@
 export 'animations/animated_components.dart';
+export 'animations/animated_die.dart';
 export 'app_button.dart';
 export 'app_header.dart';
+export 'app_loading.dart';
 export 'app_search_bar.dart';
 export 'app_text_field.dart';
 export 'cards/game_card.dart';

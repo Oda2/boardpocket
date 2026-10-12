@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
 import '../../core/components/components.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
@@ -67,7 +68,7 @@ class _RandomGamePickerScreenState extends State<RandomGamePickerScreen> {
             AppHeaderWithBack(title: l10n.randomGamePicker),
             Expanded(
               child: gameProvider.isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: AppLoading())
                   : games.isEmpty
                   ? EmptyState(
                       icon: Icons.casino_outlined,

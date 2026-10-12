@@ -88,13 +88,13 @@ void main() {
     testWidgets('should show loading indicator initially', (tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AppLoading), findsOneWidget);
     });
 
     testWidgets('should hide loading after data loads', (tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(AppLoading), findsNothing);
     });
   });
 
@@ -163,11 +163,11 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AppLoading), findsOneWidget);
 
       await tester.pumpAndSettle();
 
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(AppLoading), findsNothing);
     });
 
     testWidgets('should update state on refresh', (tester) async {
@@ -184,12 +184,12 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pump(const Duration(milliseconds: 50));
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AppLoading), findsOneWidget);
       expect(find.byType(EmptyState), findsNothing);
 
       await tester.pumpAndSettle();
 
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(AppLoading), findsNothing);
       expect(find.byType(EmptyState), findsOneWidget);
     });
   });

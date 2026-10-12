@@ -1,9 +1,17 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 import 'package:boardpocket/core/di/dependency_injection.dart';
 import 'package:boardpocket/data/models/game.dart';
 import 'package:boardpocket/data/models/wishlist_item.dart';
 import 'package:boardpocket/data/models/player.dart';
+import 'package:boardpocket/presentation/providers/game_provider.dart';
+import 'package:boardpocket/presentation/providers/wishlist_provider.dart';
+import 'package:boardpocket/presentation/providers/player_provider.dart';
+import 'package:boardpocket/presentation/providers/settings_provider.dart';
+import 'package:boardpocket/presentation/providers/challenge_provider.dart';
+import 'package:boardpocket/presentation/providers/dice_provider.dart';
 
 void main() {
   group('DependencyInjection', () {
@@ -50,8 +58,65 @@ void main() {
         di.resetForTesting();
         final providers = getProviders();
 
-        expect(providers, isA<List<ChangeNotifierProvider>>());
+        expect(providers, isA<List<SingleChildWidget>>());
         expect(providers.length, equals(6));
+      });
+
+      testWidgets('registers a working DiceProvider', (tester) async {
+        final di = DependencyInjection();
+        di.resetForTesting();
+
+        // Guards against a screen depending on a provider that main.dart
+        // never registered.
+        late DiceProvider dice;
+        await tester.pumpWidget(
+          MultiProvider(
+            providers: getProviders(),
+            child: Builder(
+              builder: (context) {
+                dice = context.read<DiceProvider>();
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        dice.addDie(20);
+        expect(dice.pool.countOf(20), 1);
+        expect(dice.canRoll, isTrue);
+      });
+
+      testWidgets('registers every provider a screen may look up', (
+        tester,
+      ) async {
+        final di = DependencyInjection();
+        di.resetForTesting();
+
+        await tester.pumpWidget(
+          MultiProvider(
+            providers: getProviders(),
+            child: Builder(
+              builder: (context) {
+                expect(context.read<GameProvider>(), isA<GameProvider>());
+                expect(
+                  context.read<WishlistProvider>(),
+                  isA<WishlistProvider>(),
+                );
+                expect(context.read<PlayerProvider>(), isA<PlayerProvider>());
+                expect(
+                  context.read<SettingsProvider>(),
+                  isA<SettingsProvider>(),
+                );
+                expect(
+                  context.read<ChallengeProvider>(),
+                  isA<ChallengeProvider>(),
+                );
+                expect(context.read<DiceProvider>(), isA<DiceProvider>());
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
       });
     });
   });

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
+import '../../../router/router.dart';
 import '../../i18n/i18n.dart';
 import '../../theme/app_theme.dart';
 import '../app_button.dart';
+import '../app_loading.dart';
 import '../form_fields.dart';
 
 enum FormFieldKind {
@@ -112,7 +114,7 @@ class _GenericFormScreenState extends State<GenericFormScreen> {
       }
     }
     await widget.onSave(_values);
-    if (mounted) context.pop();
+    if (mounted) context.popOrGo();
   }
 
   @override
@@ -127,7 +129,7 @@ class _GenericFormScreenState extends State<GenericFormScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: AppLoading()));
     }
 
     return Scaffold(
@@ -160,7 +162,7 @@ class _GenericFormScreenState extends State<GenericFormScreen> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () => context.pop(),
+            onPressed: () => context.popOrGo(),
             icon: const Icon(Icons.arrow_back_ios),
             color: AppColors.primary,
           ),
@@ -172,7 +174,7 @@ class _GenericFormScreenState extends State<GenericFormScreen> {
             ),
           ),
           TextButton(
-            onPressed: () => context.pop(),
+            onPressed: () => context.popOrGo(),
             child: Text(widget.cancelLabel ?? l10n.cancel),
           ),
         ],

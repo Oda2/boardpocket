@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:boardpocket/core/components/app_loading.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:boardpocket/core/components/screens/filterable_list_screen.dart';
 
@@ -158,7 +159,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AppLoading), findsOneWidget);
     });
 
     testWidgets('renders FAB', (WidgetTester tester) async {

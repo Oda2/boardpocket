@@ -4,7 +4,11 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../router/router.dart';
+
 import 'package:provider/provider.dart';
+
 import '../../core/components/components.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/i18n/i18n.dart';
@@ -65,7 +69,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               leading: IconActionButton(
                 icon: Icons.arrow_back_ios,
                 isDark: isDark,
-                onTap: () => context.pop(),
+                onTap: () => context.popOrGo(),
               ),
             ),
             Expanded(
@@ -201,9 +205,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       await _backupService.shareBackup();
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.backupExported)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.backupExported)));
       }
     } catch (e) {
       if (mounted) {
@@ -226,13 +229,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           context.read<GameProvider>().loadGames();
           context.read<WishlistProvider>().loadItems();
           context.read<PlayerProvider>().loadPlayers();
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(l10n.backupImported)));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(l10n.backupImported)));
         } else {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(l10n.importCancelled)));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(l10n.importCancelled)));
         }
       }
     } catch (e) {

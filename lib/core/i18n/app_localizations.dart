@@ -161,9 +161,15 @@ class AppLocalizations {
       // Cover Search Screen
       'search_covers': 'Search Covers',
       'search_covers_hint': 'Type a game name...',
+      'cover_search_no_results': 'No images found',
+      'cover_search_no_results_desc': 'These free image sources have no photo for this game. Try a shorter name, or upload your own cover.',
       'cover_search_error': 'Could not reach the image search',
       'cover_search_error_desc':
           'Check your connection and try searching again.',
+      'cover_search_busy': 'Too many searches',
+      'cover_search_busy_desc': 'The image services asked us to slow down. Wait a moment and try again.',
+      'cover_search_relaxed':
+          'No match for the full name, showing results for \'{query}\'.',
       'open_source': 'Open source',
     },
     'pt': {
@@ -315,9 +321,14 @@ class AppLocalizations {
       // Cover Search Screen
       'search_covers': 'Buscar Capas',
       'search_covers_hint': 'Digite o nome do jogo...',
+      'cover_search_no_results': 'Nenhuma imagem encontrada',
+      'cover_search_no_results_desc': 'Essas imagens gratuitas não têm foto deste jogo. Tente um nome mais curto ou envie sua própria capa.',
       'cover_search_error': 'Não foi possível buscar as imagens',
       'cover_search_error_desc':
           'Verifique sua conexão e tente buscar novamente.',
+      'cover_search_busy': 'Buscas demais',
+      'cover_search_busy_desc': 'Os serviços de imagem pediram para desacelerar. Aguarde um momento e tente de novo.',
+      'cover_search_relaxed': 'Nada encontrado para o nome completo. Mostrando resultados para \'{query}\'.',
       'open_source': 'Abrir origem',
     },
     'es': {
@@ -468,8 +479,13 @@ class AppLocalizations {
       // Cover Search Screen
       'search_covers': 'Buscar Portadas',
       'search_covers_hint': 'Escribe el nombre del juego...',
+      'cover_search_no_results': 'No se encontraron imágenes',
+      'cover_search_no_results_desc': 'Estas fuentes gratuitas no tienen foto de este juego. Prueba un nombre más corto o sube tu propia portada.',
       'cover_search_error': 'No se pudo buscar las imágenes',
       'cover_search_error_desc': 'Revisa tu conexión e inténtalo de nuevo.',
+      'cover_search_busy': 'Demasiadas búsquedas',
+      'cover_search_busy_desc': 'Los servicios de imagen nos pidieron ir más despacio. Espera un momento e inténtalo de nuevo.',
+      'cover_search_relaxed': 'Sin coincidencia con el nombre completo. Mostrando resultados para \'{query}\'.',
       'open_source': 'Abrir origen',
     },
   };
@@ -644,9 +660,18 @@ class AppLocalizations {
   // Cover Search Screen
   String get searchCovers => getString('search_covers');
   String get searchCoversHint => getString('search_covers_hint');
+  String get coverSearchNoResults => getString('cover_search_no_results');
+  String get coverSearchNoResultsDesc =>
+      getString('cover_search_no_results_desc');
   String get coverSearchError => getString('cover_search_error');
   String get coverSearchErrorDesc => getString('cover_search_error_desc');
+  String get coverSearchBusy => getString('cover_search_busy');
+  String get coverSearchBusyDesc => getString('cover_search_busy_desc');
   String get openSource => getString('open_source');
+
+  /// Message shown when results came from a shortened version of the query.
+  String coverSearchRelaxed(String query) =>
+      getString('cover_search_relaxed').replaceAll('{query}', query);
 
   String getLanguageDisplayName(String code) {
     switch (code) {

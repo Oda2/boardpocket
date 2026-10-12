@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
+import '../../router/router.dart';
+
 import 'package:provider/provider.dart';
+
 import '../../core/components/components.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
@@ -90,7 +93,7 @@ class DiceRollerScreen extends StatelessWidget {
           IconActionButton(
             icon: Icons.close,
             isDark: isDark,
-            onTap: () => context.pop(),
+            onTap: () => context.popOrGo(),
           ),
         ],
       ),
@@ -219,9 +222,20 @@ class DiceRollerScreen extends StatelessWidget {
     DiceProvider dice,
     bool isDark,
   ) {
-    if (dice.lastRoll.isEmpty) {
+    // While the very first roll is in flight there is no result yet, but the
+    // dice should already be tumbling so the wait feels intentional.
+    final showTumbleOnly = dice.isRolling && dice.lastRoll.isEmpty;
+    if (dice.lastRoll.isEmpty && !showTumbleOnly) {
       return const SizedBox.shrink();
     }
+
+    final placeholder = showTumbleOnly
+        ? [
+            for (final sides in dice.pool.selectedTypes)
+              for (var i = 0; i < dice.pool.countOf(sides); i++)
+                DieRoll(sides: sides, value: 1),
+          ]
+        : dice.lastRoll;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,13 +270,11 @@ class DiceRollerScreen extends StatelessWidget {
                 runSpacing: 8,
                 alignment: WrapAlignment.center,
                 children: [
-                  for (final die in dice.lastRoll)
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.6, end: 1),
-                      duration: const Duration(milliseconds: 250),
-                      builder: (context, value, child) =>
-                          Transform.scale(scale: value, child: child),
-                      child: _DieResult(die: die),
+                  for (final die in placeholder)
+                    AnimatedDie(
+                      sides: die.sides,
+                      value: die.value,
+                      isRolling: dice.isRolling,
                     ),
                 ],
               ),
@@ -344,48 +356,6 @@ class _DieChip extends StatelessWidget {
       onDeleted: selected ? onRemove : null,
       deleteIcon: const Icon(Icons.remove_circle_outline, size: 18),
       deleteButtonTooltipMessage: 'Remove d$sides',
-    );
-  }
-}
-
-class _DieResult extends StatelessWidget {
-  final DieRoll die;
-
-  const _DieResult({required this.die});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 52,
-      height: 52,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '${die.value}',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: AppColors.primary,
-            ),
-          ),
-          Text(
-            'd${die.sides}',
-            style: TextStyle(
-              fontSize: 9,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryLight,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

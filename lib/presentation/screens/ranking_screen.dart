@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+
 import '../../core/components/components.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
@@ -54,7 +55,7 @@ class _RankingScreenState extends State<RankingScreen> {
             _buildHeader(l10n, isDark),
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: AppLoading())
                   : _games.isEmpty
                   ? EmptyState(
                       icon: Icons.emoji_events_outlined,

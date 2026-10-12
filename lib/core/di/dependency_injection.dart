@@ -1,4 +1,5 @@
 import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 
 import '../../data/database/database_helper.dart';
 import '../../data/repositories/game_repository.dart';
@@ -185,7 +186,13 @@ class MockSettingsRepository implements SettingsRepository {
   }
 }
 
-List<ChangeNotifierProvider> getProviders() {
+/// Returns the app-wide providers.
+///
+/// The list is typed as `SingleChildWidget` on purpose: with a raw
+/// `List<ChangeNotifierProvider>` the generic collapses to
+/// `ChangeNotifierProvider<ChangeNotifier>`, and `context.read<GameProvider>()`
+/// would then fail to resolve at runtime.
+List<SingleChildWidget> getProviders() {
   final di = DependencyInjection();
 
   return [

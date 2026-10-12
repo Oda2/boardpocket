@@ -46,5 +46,6 @@ app.*.map.json
 /android/build
 .env
 *.jks
+*.keystore
 *.log
 google-services.json

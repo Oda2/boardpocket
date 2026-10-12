@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../router/router.dart';
 import '../../theme/app_theme.dart';
 import '../app_button.dart';
 
@@ -23,7 +25,7 @@ class FormScreenHeader extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            onPressed: onBack ?? () => Navigator.of(context).pop(),
+            onPressed: onBack ?? () => context.popOrGo(),
             icon: const Icon(Icons.arrow_back_ios),
             color: AppColors.primary,
           ),
@@ -35,7 +37,7 @@ class FormScreenHeader extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: onCancel ?? () => Navigator.of(context).pop(),
+            onPressed: onCancel ?? () => context.popOrGo(),
             child: Text(cancelText ?? 'Cancel'),
           ),
         ],

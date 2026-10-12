@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
+import '../../../router/router.dart';
 import '../../i18n/i18n.dart';
 import '../../theme/app_theme.dart';
+import '../app_loading.dart';
 import '../app_text_field.dart';
 import '../images/adaptive_image.dart';
 import 'form_section.dart';
@@ -88,7 +90,7 @@ class _FormScreenState<T> extends State<FormScreen<T>> {
 
     if (widget.onSave != null) {
       await widget.onSave!(values);
-      if (mounted) context.pop();
+      if (mounted) context.popOrGo();
     }
   }
 
@@ -106,7 +108,7 @@ class _FormScreenState<T> extends State<FormScreen<T>> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: AppLoading()));
     }
 
     return Scaffold(

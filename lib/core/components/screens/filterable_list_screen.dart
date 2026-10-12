@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../theme/app_theme.dart';
 import '../app_header.dart';
+import '../app_loading.dart';
 import '../app_search_bar.dart';
 import '../chip_selector.dart';
 import '../profile_avatar.dart';
@@ -78,7 +80,7 @@ class FilterableListScreen extends StatelessWidget {
                   ),
                 Expanded(
                   child: isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? const Center(child: AppLoading())
                       : isEmpty
                       ? EmptyState(
                           icon: emptyIcon,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
+import '../../router/router.dart';
 import '../../core/components/components.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/i18n/i18n.dart';
@@ -25,7 +26,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
               leading: IconActionButton(
                 icon: Icons.arrow_back_ios,
                 isDark: isDark,
-                onTap: () => context.pop(),
+                onTap: () => context.popOrGo(),
               ),
             ),
             Expanded(
@@ -64,38 +65,31 @@ class PrivacyPolicyScreen extends StatelessWidget {
   static final List<Map<String, String>> _contentEn = [
     {
       'title': 'Introduction',
-      'content':
-          'BoardPocket respects your privacy. This Privacy Policy explains how we collect, use, and protect your personal information when you use our application.',
+      'content': 'BoardPocket respects your privacy. This Privacy Policy explains how we collect, use, and protect your personal information when you use our application.',
     },
     {
       'title': 'Data We Collect',
-      'content':
-          'We collect only the data necessary to provide our services:\n\n• Game collection data (titles, players, play time, categories)\n• Wishlist information\n• Play session records (wins/losses, dates)\n• Device information for backup functionality',
+      'content': 'We collect only the data necessary to provide our services:\n\n• Game collection data (titles, players, play time, categories)\n• Wishlist information\n• Play session records (wins/losses, dates)\n• Device information for backup functionality',
     },
     {
       'title': 'How We Use Your Data',
-      'content':
-          'Your data is used exclusively for:\n\n• Managing your board game collection\n• Tracking play sessions and statistics\n• Providing randomizer features\n• Enabling data backup and restore',
+      'content': 'Your data is used exclusively for:\n\n• Managing your board game collection\n• Tracking play sessions and statistics\n• Providing randomizer features\n• Enabling data backup and restore',
     },
     {
       'title': 'Data Storage',
-      'content':
-          'Your personal data (games, wishlists, play sessions) is stored locally on your device. We do not upload your personal data to external servers.',
+      'content': 'Your personal data (games, wishlists, play sessions) is stored locally on your device. We do not upload your personal data to external servers.',
     },
     {
       'title': 'Analytics',
-      'content':
-          'BoardPocket does not collect analytics data. The app works completely offline and does not send any data to external servers.',
+      'content': 'BoardPocket does not collect analytics data. The app works completely offline and does not send any data to external servers.',
     },
     {
       'title': 'Your Rights',
-      'content':
-          'You have the right to:\n\n• Access your personal data\n• Delete all your data (via app settings)\n• Export your data in JSON format\n\nYou can delete all data through the app\'s settings menu.',
+      'content': 'You have the right to:\n\n• Access your personal data\n• Delete all your data (via app settings)\n• Export your data in JSON format\n\nYou can delete all data through the app\'s settings menu.',
     },
     {
       'title': 'Contact',
-      'content':
-          'If you have questions about this Privacy Policy, please contact us through the app\'s support channels.',
+      'content': 'If you have questions about this Privacy Policy, please contact us through the app\'s support channels.',
     },
     {'title': 'Last Updated', 'content': 'February 2026'},
   ];
@@ -103,38 +97,31 @@ class PrivacyPolicyScreen extends StatelessWidget {
   static final List<Map<String, String>> _contentPt = [
     {
       'title': 'Introdução',
-      'content':
-          'BoardPocket respeita sua privacidade. Esta Política de Privacidade explica como coletamos, usamos e protegemos suas informações pessoais ao usar nosso aplicativo.',
+      'content': 'BoardPocket respeita sua privacidade. Esta Política de Privacidade explica como coletamos, usamos e protegemos suas informações pessoais ao usar nosso aplicativo.',
     },
     {
       'title': 'Dados que Coletamos',
-      'content':
-          'Coletamos apenas os dados necessários para fornecer nossos serviços:\n\n• Dados da coleção de jogos (títulos, jogadores, tempo de jogo, categorias)\n• Informações da lista de desejos\n• Registros de sessões de jogo (vitórias/derrotas, datas)\n• Informações do dispositivo para funcionalidade de backup',
+      'content': 'Coletamos apenas os dados necessários para fornecer nossos serviços:\n\n• Dados da coleção de jogos (títulos, jogadores, tempo de jogo, categorias)\n• Informações da lista de desejos\n• Registros de sessões de jogo (vitórias/derrotas, datas)\n• Informações do dispositivo para funcionalidade de backup',
     },
     {
       'title': 'Como Usamos Seus Dados',
-      'content':
-          'Seus dados são usados exclusivamente para:\n\n• Gerenciar sua coleção de jogos de tabuleiro\n• Rastrear sessões de jogo e estatísticas\n• Fornecer funcionalidades de sorteio\n• Habilitar backup e restauração de dados',
+      'content': 'Seus dados são usados exclusivamente para:\n\n• Gerenciar sua coleção de jogos de tabuleiro\n• Rastrear sessões de jogo e estatísticas\n• Fornecer funcionalidades de sorteio\n• Habilitar backup e restauração de dados',
     },
     {
       'title': 'Armazenamento de Dados',
-      'content':
-          'Seus dados pessoais (jogos, listas de desejos, sessões de jogo) são armazenados localmente em seu dispositivo. Não enviamos seus dados pessoais para servidores externos.',
+      'content': 'Seus dados pessoais (jogos, listas de desejos, sessões de jogo) são armazenados localmente em seu dispositivo. Não enviamos seus dados pessoais para servidores externos.',
     },
     {
       'title': 'Analytics',
-      'content':
-          'BoardPocket não coleta dados de analytics. O aplicativo funciona completamente offline e não envia nenhum dado para servidores externos.',
+      'content': 'BoardPocket não coleta dados de analytics. O aplicativo funciona completamente offline e não envia nenhum dado para servidores externos.',
     },
     {
       'title': 'Seus Direitos',
-      'content':
-          'Você tem o direito de:\n\n• Acessar seus dados pessoais\n• Excluir todos os seus dados (via configurações do app)\n• Exportar seus dados em formato JSON\n\nVocê pode excluir todos os dados através do menu de configurações do aplicativo.',
+      'content': 'Você tem o direito de:\n\n• Acessar seus dados pessoais\n• Excluir todos os seus dados (via configurações do app)\n• Exportar seus dados em formato JSON\n\nVocê pode excluir todos os dados através do menu de configurações do aplicativo.',
     },
     {
       'title': 'Contato',
-      'content':
-          'Se você tiver dúvidas sobre esta Política de Privacidade, entre em contato conosco através dos canais de suporte do aplicativo.',
+      'content': 'Se você tiver dúvidas sobre esta Política de Privacidade, entre em contato conosco através dos canais de suporte do aplicativo.',
     },
     {'title': 'Última Atualização', 'content': 'Fevereiro de 2026'},
   ];
@@ -142,38 +129,31 @@ class PrivacyPolicyScreen extends StatelessWidget {
   static final List<Map<String, String>> _contentEs = [
     {
       'title': 'Introducción',
-      'content':
-          'BoardPocket respeta tu privacidad. Esta Política de Privacidad explica cómo recopilamos, usamos y protegemos tu información personal cuando usas nuestra aplicación.',
+      'content': 'BoardPocket respeta tu privacidad. Esta Política de Privacidad explica cómo recopilamos, usamos y protegemos tu información personal cuando usas nuestra aplicación.',
     },
     {
       'title': 'Datos que Recopilamos',
-      'content':
-          'Solo recopilamos los datos necesarios para proporcionar nuestros servicios:\n\n• Datos de tu colección de juegos (títulos, jugadores, tiempo de juego, categorías)\n• Información de la lista de deseos\n• Registros de sesiones de juego (victorias/derrotas, fechas)\n• Información del dispositivo para funcionalidad de respaldo',
+      'content': 'Solo recopilamos los datos necesarios para proporcionar nuestros servicios:\n\n• Datos de tu colección de juegos (títulos, jugadores, tiempo de juego, categorías)\n• Información de la lista de deseos\n• Registros de sesiones de juego (victorias/derrotas, fechas)\n• Información del dispositivo para funcionalidad de respaldo',
     },
     {
       'title': 'Cómo Usamos Tus Datos',
-      'content':
-          'Tus datos se usan exclusivamente para:\n\n• Gestionar tu colección de juegos de mesa\n• Rastrear sesiones de juego y estadísticas\n• Proporcionar funciones de aleatorización\n• Habilitar respaldo y restauración de datos',
+      'content': 'Tus datos se usan exclusivamente para:\n\n• Gestionar tu colección de juegos de mesa\n• Rastrear sesiones de juego y estadísticas\n• Proporcionar funciones de aleatorización\n• Habilitar respaldo y restauración de datos',
     },
     {
       'title': 'Almacenamiento de Datos',
-      'content':
-          'Tus datos personales (juegos, listas de deseos, sesiones de juego) se almacenan localmente en tu dispositivo. No subimos tus datos personales a servidores externos.',
+      'content': 'Tus datos personales (juegos, listas de deseos, sesiones de juego) se almacenan localmente en tu dispositivo. No subimos tus datos personales a servidores externos.',
     },
     {
       'title': 'Analytics',
-      'content':
-          'BoardPocket no recopila datos de analytics. La aplicación funciona completamente sin conexión y no envía ningún dato a servidores externos.',
+      'content': 'BoardPocket no recopila datos de analytics. La aplicación funciona completamente sin conexión y no envía ningún dato a servidores externos.',
     },
     {
       'title': 'Tus Derechos',
-      'content':
-          'Tienes derecho a:\n\n• Acceder a tus datos personales\n• Eliminar todos tus datos (a través de la configuración de la app)\n• Exportar tus datos en formato JSON\n\nPuedes eliminar todos los datos a través del menú de configuración de la aplicación.',
+      'content': 'Tienes derecho a:\n\n• Acceder a tus datos personales\n• Eliminar todos tus datos (a través de la configuración de la app)\n• Exportar tus datos en formato JSON\n\nPuedes eliminar todos los datos a través del menú de configuración de la aplicación.',
     },
     {
       'title': 'Contacto',
-      'content':
-          'Si tienes preguntas sobre esta Política de Privacidad, contáctanos a través de los canales de soporte de la aplicación.',
+      'content': 'Si tienes preguntas sobre esta Política de Privacidad, contáctanos a través de los canales de soporte de la aplicación.',
     },
     {'title': 'Última Actualización', 'content': 'Febrero de 2026'},
   ];

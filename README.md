@@ -99,7 +99,7 @@ domain images. Nothing about your collection is ever sent.
 ## 🚀 Installation
 
 ### Prerequisites
-- Flutter SDK (^3.41.0) / Dart SDK (^3.11.0)
+- Flutter SDK (^3.47.0) / Dart SDK (^3.13.0)
 - Android Studio / Xcode (for mobile development)
 - Chrome (for web development)
 - Java 17 (for Android builds)
@@ -158,7 +158,7 @@ Everything is wrapped in a `Makefile`. Run `make help` for the full list.
 | `make test` | Run the full test suite |
 | `make test-watch` | Run tests in watch mode |
 | `make coverage` | Run tests with coverage into `coverage/lcov.info` |
-| `make ci` | `format-check` + `analyze` + `test` — same as CI |
+| `make ci` | `analyze` + `test` — the same checks CI runs |
 
 ### Build for each platform
 
@@ -214,16 +214,77 @@ fail without a configured team and provisioning profile).
 
 ### Dependency versions
 
-Dependencies are pinned to the newest versions that the Flutter SDK in use can
-resolve. A few packages have a newer major release that needs a newer Dart SDK
-than the one pinned in `pubspec.yaml` (for example `go_router` 18 requires Dart
-3.12, `google_fonts` 9 requires Dart 3.13). Those stay on their newest
-compatible line until the SDK is bumped; the reason is noted next to each one in
-`pubspec.yaml`.
+Every direct dependency is on its newest release, verified with:
 
 ```bash
-make outdated    # see what could be upgraded after a Flutter upgrade
+make outdated   # should report "all up-to-date"
 ```
+
+Upgrading Flutter generally unblocks newer majors of several packages, because
+they gate on the Dart SDK version. Check `make outdated` after a Flutter upgrade
+and bump whatever it lists.
+
+## 🚀 Releasing
+
+Pushing a `v*` tag runs `.github/workflows/release.yml`, which:
+
+1. builds a release **APK** and **App Bundle** and attaches them to the GitHub
+   Release for that tag;
+2. builds the web app and deploys it to GitHub Pages;
+3. rewrites the GitHub Release notes if the release already exists (so re-running
+   is safe).
+
+```bash
+# 1. bump the version in pubspec.yaml
+#    version: 0.1.5+12
+
+# 2. commit, tag and push
+git add pubspec.yaml
+git commit -m "chore: release v0.1.5"
+git tag v0.1.5
+git push origin main --follow-tags
+```
+
+The APK and AAB land under the tag's **Assets** on the GitHub Releases page.
+
+### Required secrets (Android signing)
+
+Add these under **Settings → Secrets and variables → Actions**:
+
+| Secret | Value |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | `base64 -i boardpocket.keystore \| pbcopy` |
+| `ANDROID_KEY_ALIAS` | The keystore alias, e.g. `boardpocket` |
+| `ANDROID_KEY_PASSWORD` | Key password |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore password |
+
+Create the keystore once and keep it safe:
+
+```bash
+keytool -genkey -v \
+  -keystore ~/boardpocket.keystore \
+  -alias boardpocket \
+  -keyalg RSA -keysize 2048 -validity 10000
+base64 -i ~/boardpocket.keystore | pbcopy   # paste into the secret
+```
+
+> **Keep this keystore forever, and back it up.**
+> Android only accepts an update when it is signed with the same key as the
+> installed version. If the key changes, the app cannot be updated in place and
+> the user has to uninstall it — and because BoardPocket keeps the collection in
+> a local database with no server, **uninstalling deletes their data**. This is
+> also why the release job fails loudly when the secrets are missing instead of
+> quietly generating a throwaway key.
+
+Without the secrets you can still run the workflow manually with
+`allow_unsigned: true`. The artifacts are then named
+`*-UNSIGNED-do-not-distribute.*` so they are never mistaken for a real release.
+
+### GitHub Pages setup (one time)
+
+The web deploy uses the official Pages action, so in **Settings → Pages** set
+**Source** to **GitHub Actions**. The app is then served from
+`https://<owner>.github.io/<repo>/` (the build sets `--base-href` automatically).
 
 ## 🎯 Getting Started
 
@@ -276,8 +337,12 @@ flutter test test/your_test_file_test.dart
 ### What CI Runs
 
 ```bash
-make ci    # format-check + analyze + test
+make ci    # analyze + test
 ```
+
+Formatting is checked with `make format-check`. The Dart formatter changes style
+between SDK releases, so run `make format` once after a Flutter upgrade and commit
+the result rather than mixing it into a feature change.
 
 ---
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+
+import 'core/components/app_loading.dart';
 import 'core/theme/theme.dart';
 import 'core/i18n/i18n.dart';
 import 'core/services/analytics_service.dart';
@@ -20,26 +22,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final di = DependencyInjection();
-
+    // Single source of truth for the provider list, so a new provider cannot
+    // be forgotten here.
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => GameProvider(repository: di.gameRepository!),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => WishlistProvider(repository: di.wishlistRepository!),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => PlayerProvider(repository: di.playerRepository!),
-        ),
-        ChangeNotifierProvider(
-          create: (_) =>
-              SettingsProvider(repository: di.settingsRepository!)
-                ..loadSettings(),
-        ),
-        ChangeNotifierProvider(create: (_) => ChallengeProvider()),
-      ],
+      providers: getProviders(),
       child: const AppWithSettings(),
     );
   }
@@ -57,7 +43,7 @@ class AppWithSettings extends StatelessWidget {
         title: 'BoardPocket',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const Scaffold(body: Center(child: CircularProgressIndicator())),
+        home: const Scaffold(body: Center(child: AppLoading())),
       );
     }
 

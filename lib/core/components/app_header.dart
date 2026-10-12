@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../router/router.dart';
 import '../theme/app_theme.dart';
 import 'icon_action_button.dart';
 import 'profile_avatar.dart';
@@ -101,7 +103,7 @@ class AppHeaderWithBack extends StatelessWidget {
           IconActionButton(
             icon: Icons.arrow_back_ios_new,
             isDark: isDark,
-            onTap: onBack ?? () => Navigator.of(context).pop(),
+            onTap: onBack ?? () => context.popOrGo(),
           ),
           Text(
             title,

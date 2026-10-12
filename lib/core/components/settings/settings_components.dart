@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../theme/app_theme.dart';
 import '../theme_container.dart';
 
@@ -58,36 +59,42 @@ class SettingsListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Icon(icon, color: iconColor),
-      ),
-      title: Text(title),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle!,
-              style: TextStyle(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
-              ),
-            )
-          : null,
-      trailing:
-          trailing ??
-          Icon(
-            Icons.chevron_right,
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
+    // Flutter 3.47 asserts when a ListTile sits inside a DecoratedBox with a
+    // background (our ThemeContainer). Its own transparent Material gives the
+    // tile a surface to paint ink splashes on.
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: iconColor.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(20),
           ),
-      onTap: onTap,
+          child: Icon(icon, color: iconColor),
+        ),
+        title: Text(title),
+        subtitle: subtitle != null
+            ? Text(
+                subtitle!,
+                style: TextStyle(
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
+                ),
+              )
+            : null,
+        trailing:
+            trailing ??
+            Icon(
+              Icons.chevron_right,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondaryLight,
+            ),
+        onTap: onTap,
+      ),
     );
   }
 }
@@ -112,21 +119,24 @@ class SettingsToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(20),
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: iconColor.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Icon(icon, color: iconColor),
         ),
-        child: Icon(icon, color: iconColor),
-      ),
-      title: Text(title),
-      trailing: Switch(
-        value: value,
-        onChanged: onChanged,
-        activeColor: AppColors.primary,
+        title: Text(title),
+        trailing: Switch(
+          value: value,
+          onChanged: onChanged,
+          activeThumbColor: AppColors.primary,
+        ),
       ),
     );
   }

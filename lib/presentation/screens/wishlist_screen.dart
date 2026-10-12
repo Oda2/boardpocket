@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../core/components/components.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
@@ -59,7 +60,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: wishlistProvider.isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? const Center(child: AppLoading())
                       : items.isEmpty
                       ? EmptyState(
                           icon: Icons.favorite_border,
