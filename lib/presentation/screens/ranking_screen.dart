@@ -9,7 +9,10 @@ import '../../data/repositories/game_repository.dart';
 import '../widgets/bottom_tab_bar.dart';
 
 class RankingScreen extends StatefulWidget {
-  const RankingScreen({super.key});
+  /// Injectable for tests; defaults to the real repository in production.
+  final GameRepository? repository;
+
+  const RankingScreen({super.key, this.repository});
 
   @override
   State<RankingScreen> createState() => _RankingScreenState();
@@ -28,14 +31,16 @@ class _RankingScreenState extends State<RankingScreen> {
   Future<void> _loadGames() async {
     setState(() => _isLoading = true);
     try {
-      final repository = GameRepository();
+      final repository = widget.repository ?? GameRepository();
       final games = await repository.getAll();
       games.sort((a, b) => b.totalPlays.compareTo(a.totalPlays));
+      if (!mounted) return;
       setState(() {
         _games = games;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }

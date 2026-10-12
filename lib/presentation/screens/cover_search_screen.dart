@@ -16,14 +16,17 @@ import '../../data/services/services.dart';
 class CoverSearchScreen extends StatefulWidget {
   final String? initialQuery;
 
-  const CoverSearchScreen({super.key, this.initialQuery});
+  /// Injectable for tests; defaults to a real service in production.
+  final CoverSearchService? service;
+
+  const CoverSearchScreen({super.key, this.initialQuery, this.service});
 
   @override
   State<CoverSearchScreen> createState() => _CoverSearchScreenState();
 }
 
 class _CoverSearchScreenState extends State<CoverSearchScreen> {
-  final _service = CoverSearchService();
+  late final CoverSearchService _service;
   final _controller = TextEditingController();
 
   Timer? _debounce;
@@ -35,6 +38,7 @@ class _CoverSearchScreenState extends State<CoverSearchScreen> {
   @override
   void initState() {
     super.initState();
+    _service = widget.service ?? CoverSearchService();
     final initial = widget.initialQuery?.trim() ?? '';
     if (initial.isNotEmpty) {
       _controller.text = initial;

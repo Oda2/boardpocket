@@ -253,10 +253,10 @@ Add these under **Settings → Secrets and variables → Actions**:
 
 | Secret | Value |
 | --- | --- |
-| `ANDROID_KEYSTORE_BASE64` | `base64 -i boardpocket.keystore \| pbcopy` |
-| `ANDROID_KEY_ALIAS` | The keystore alias, e.g. `boardpocket` |
-| `ANDROID_KEY_PASSWORD` | Key password |
-| `ANDROID_KEYSTORE_PASSWORD` | Keystore password |
+| `KEYSTORE_BASE64` | `base64 -i boardpocket.keystore \| pbcopy` |
+| `KEY_ALIAS` | The keystore alias, e.g. `boardpocket` |
+| `KEY_PASSWORD` | Key password |
+| `STORE_PASSWORD` | Keystore password |
 
 Create the keystore once and keep it safe:
 

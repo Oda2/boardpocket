@@ -84,16 +84,20 @@ jobs:
         id: signing
         env:
           ALLOW_UNSIGNED: ${{ inputs.allow_unsigned || false }}
-          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          # Accept both the short and the ANDROID_-prefixed names, so the
+          # secrets work whichever convention was used when they were added.
+          # A missing secret evaluates to an empty string, so the fallback is
+          # safe.
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 || secrets.KEYSTORE_BASE64 }}
+          KEY_ALIAS_VALUE: ${{ secrets.ANDROID_KEY_ALIAS || secrets.KEY_ALIAS }}
+          KEY_PASSWORD_VALUE: ${{ secrets.ANDROID_KEY_PASSWORD || secrets.KEY_PASSWORD }}
+          STORE_PASSWORD_VALUE: ${{ secrets.ANDROID_KEYSTORE_PASSWORD || secrets.STORE_PASSWORD }}
         run: |
           set -euo pipefail
 
-          if [ -z "${KEYSTORE_BASE64}" ]; then
+          if [ -z "${KEYSTORE_B64}" ]; then
             if [ "${ALLOW_UNSIGNED}" != "true" ]; then
-              echo "::error::ANDROID_KEYSTORE_BASE64 is not configured. Add the release keystore as a repository secret (Settings > Secrets and variables > Actions), or re-run manually with allow_unsigned=true if you only want a throwaway build."
+              echo "::error::No keystore secret configured. Add one of ANDROID_KEYSTORE_BASE64 / KEYSTORE_BASE64 (Settings > Secrets and variables > Actions), or re-run manually with allow_unsigned=true for a throwaway build."
               exit 1
             fi
             echo "::warning::Building with a throwaway CI keystore. The resulting APK CANNOT update an existing install and must not be distributed."
@@ -104,15 +108,15 @@ jobs:
               -storepass boardpocket -keypass boardpocket \
               -dname "CN=BoardPocket, OU=BoardPocket, O=BoardPocket, L=, S=, C=US"
           else
-            echo "${KEYSTORE_BASE64}" | base64 --decode > "${KEYSTORE_PATH}"
+            echo "${KEYSTORE_B64}" | base64 --decode > "${KEYSTORE_PATH}"
             echo "Using the configured release keystore."
           fi
 
           cat > android/.env <<EOF
-          BOARD_KEY_ALIAS=${KEY_ALIAS:-boardpocket}
-          BOARD_KEY_PASSWORD=${KEY_PASSWORD:-boardpocket}
+          BOARD_KEY_ALIAS=${KEY_ALIAS_VALUE:-boardpocket}
+          BOARD_KEY_PASSWORD=${KEY_PASSWORD_VALUE:-boardpocket}
           BOARD_STORE_FILE=boardpocket.keystore
-          BOARD_STORE_PASSWORD=${STORE_PASSWORD:-boardpocket}
+          BOARD_STORE_PASSWORD=${STORE_PASSWORD_VALUE:-boardpocket}
           EOF
 
       - name: Resolve version from pubspec
@@ -133,7 +137,7 @@ jobs:
       - name: Collect artifacts
         id: collect
         env:
-          SIGNED: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+          SIGNED: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' || secrets.KEYSTORE_BASE64 != '' }}
         run: |
           set -euo pipefail
           NAME="${{ steps.version.outputs.name }}"
