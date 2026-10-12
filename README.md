@@ -293,11 +293,18 @@ Without the secrets you can still run the workflow manually with
 `allow_unsigned: true`. The artifacts are then named
 `*-UNSIGNED-do-not-distribute.*` so they are never mistaken for a real release.
 
-### GitHub Pages setup (one time)
+### GitHub Pages setup
 
-The web deploy uses the official Pages action, so in **Settings → Pages** set
-**Source** to **GitHub Actions**. The app is then served from
-`https://<owner>.github.io/<repo>/` (the build sets `--base-href` automatically).
+The web deploy pushes the build to the **`gh-pages` branch**, which is what
+Pages serves in the usual **Settings → Pages → Source: Deploy from a branch**
+configuration. Nothing needs to be changed in the repository settings.
+
+The site is served from `https://<owner>.github.io/<repo>/` and the build sets
+`--base-href` automatically.
+
+> If you ever switch Pages to **Source: GitHub Actions**, this workflow will
+> stop updating the site — that source ignores the `gh-pages` branch. Let me
+> know and I will swap the deploy job to `actions/deploy-pages` instead.
 
 ## 🎯 Getting Started
 
