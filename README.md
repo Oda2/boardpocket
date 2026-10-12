@@ -53,11 +53,13 @@ Whether you're a casual player or a serious collector, BoardPocket provides ever
 - **Digital Collection**: Keep track of all your board games in one place
 - **Game Details**: Store comprehensive information including title, player count, play time, category, and complexity
 - **Cover Images**: Upload high-resolution cover images for each game
+- **Cover Search**: Type a game name and pick a cover from Openverse / Wikimedia Commons when you don't have the image handy
 - **Statistics**: Track total plays, win rates, and last played dates
 - **Categories**: Organize games by category with easy filtering
 - **Search**: Quickly find games with the built-in search functionality
 
 ### 🎰 Game Night Tools
+- **Dice Roller**: Pick exactly which dice you need (d4, d6, d8, d10, d12, d20, d100), roll them together and see every result plus the total
 - **Random Game Picker**: Can't decide what to play? Let the app choose for you!
 - **Finger Picker**: Interactive tool to randomly select who starts by touching the screen
 - **Name Draw**: Draw random names from your player groups
@@ -78,6 +80,13 @@ Whether you're a casual player or a serious collector, BoardPocket provides ever
 - **Cross-Platform**: Works on Android, iOS, and Web
 - **Local Storage**: Your data stays on your device (with SQLite)
 
+### 🔒 Privacy First
+BoardPocket is **local-first**. There is no account, no server, and no telemetry:
+your collection never leaves the device. The only outbound request the app ever
+makes is the optional cover image search, and even that goes to public, key-less
+APIs (Openverse and Wikimedia Commons) that return Creative Commons / public
+domain images. Nothing about your collection is ever sent.
+
 ## 📸 Screenshots
 
 <p align="center">
@@ -90,10 +99,11 @@ Whether you're a casual player or a serious collector, BoardPocket provides ever
 ## 🚀 Installation
 
 ### Prerequisites
-- Flutter SDK (^3.11.0)
-- Dart SDK
+- Flutter SDK (^3.41.0) / Dart SDK (^3.11.0)
 - Android Studio / Xcode (for mobile development)
 - Chrome (for web development)
+- Java 17 (for Android builds)
+- Xcode + a configured signing team (for iOS release builds)
 
 ### Clone the Repository
 
@@ -106,6 +116,12 @@ cd boardpocket
 
 ```bash
 flutter pub get
+```
+
+Or, with the Makefile:
+
+```bash
+make deps
 ```
 
 ### Run the App
@@ -121,20 +137,92 @@ flutter run -d ios
 flutter run -d chrome
 ```
 
-### Build for Production
+Or:
 
 ```bash
-# Android APK
-flutter build apk --release
+make run                # or: make run ARGS="-d chrome"
+```
 
-# Android App Bundle
-flutter build appbundle --release
+## 🛠 Build & Compile
 
-# iOS
-flutter build ios --release
+Everything is wrapped in a `Makefile`. Run `make help` for the full list.
+
+| Command | What it does |
+| --- | --- |
+| `make deps` | `flutter pub get` |
+| `make outdated` | Show dependencies with newer versions available |
+| `make doctor` | Check the local Flutter / Android / iOS toolchain |
+| `make format` | Format `lib/` and `test/` |
+| `make format-check` | Fail if anything is unformatted (used by CI) |
+| `make lint` / `make analyze` | `flutter analyze` |
+| `make test` | Run the full test suite |
+| `make test-watch` | Run tests in watch mode |
+| `make coverage` | Run tests with coverage into `coverage/lcov.info` |
+| `make ci` | `format-check` + `analyze` + `test` — same as CI |
+
+### Build for each platform
+
+```bash
+# Android: debug APK + release App Bundle (Play Store)
+make build-apk
+make build-appbundle
+make build-android        # both of the above
+
+# iOS (requires macOS + Xcode + signing configured)
+make build-ios
 
 # Web
-flutter build web --release
+make build-web
+
+# Everything
+make build-all
+```
+
+Or straight from Flutter:
+
+```bash
+flutter build apk --debug          # build/app/outputs/flutter-apk/app-debug.apk
+flutter build appbundle --release   # build/app/outputs/bundle/release/
+flutter build ios --release        # build/ios/iphoneos/
+flutter build web --release        # build/web/
+```
+
+### Where the output goes
+
+| Platform | Artefact |
+| --- | --- |
+| Android APK | `build/app/outputs/flutter-apk/app-debug.apk` |
+| Android App Bundle | `build/app/outputs/bundle/release/app-release.aab` |
+| iOS | `build/ios/iphoneos/Runner.app` |
+| Web | `build/web/` (serve it with any static file server) |
+
+### Signing the Android release
+
+Release signing reads its credentials from `android/.env` (git-ignored) or from
+environment variables:
+
+```properties
+# android/.env
+BOARD_KEY_ALIAS=...
+BOARD_KEY_PASSWORD=...
+BOARD_STORE_FILE=...        # path to the .jks keystore
+BOARD_STORE_PASSWORD=...
+```
+
+iOS builds need a normal Xcode signing setup (`flutter build ios --release` will
+fail without a configured team and provisioning profile).
+
+### Dependency versions
+
+Dependencies are pinned to the newest versions that the Flutter SDK in use can
+resolve. A few packages have a newer major release that needs a newer Dart SDK
+than the one pinned in `pubspec.yaml` (for example `go_router` 18 requires Dart
+3.12, `google_fonts` 9 requires Dart 3.13). Those stay on their newest
+compatible line until the SDK is bumped; the reason is noted next to each one in
+`pubspec.yaml`.
+
+```bash
+make outdated    # see what could be upgraded after a Flutter upgrade
 ```
 
 ## 🎯 Getting Started
@@ -142,20 +230,21 @@ flutter build web --release
 ### First Launch
 1. Open the app and explore the **Collection** tab
 2. Tap the **+** button to add your first board game
-3. Fill in the game details and upload a cover image
+3. Fill in the game details and pick a cover (upload or search)
 4. Explore the **Randomizer** tab for game night tools
 5. Add games to your **Wishlist** for future purchases
 
 ### Adding a Game
 1. Tap the **+** button in the Collection tab
 2. Enter the game title
-3. Set player count (min and max)
-4. Select play time and complexity
-5. Choose a category
-6. Upload a cover image
+3. Pick a cover: upload one from your device, or tap **Search online** to look one up
+4. Set player count (min and max)
+5. Select play time and complexity
+6. Choose a category
 7. Save!
 
 ### Using Randomizers
+- **Dice Roller**: Go to Randomizer → Dice Roller, tap the dice you need (e.g. `d20`, `d20`, `d6`), then roll
 - **Random Game Picker**: Go to Randomizer → Random Game and tap the button
 - **Finger Picker**: Everyone touches the screen, the app selects randomly
 - **Name Draw**: Add player names and draw to see who goes first
@@ -167,38 +256,27 @@ flutter build web --release
 
 ```bash
 flutter test
+# or
+make test
 ```
 
 ### Run with Coverage
 
 ```bash
 # Generate coverage report (creates coverage/lcov.info)
-flutter test --coverage
-
-# Generate HTML report (requires lcov)
-genhtml coverage/lcov.info -o coverage/html
-
-# Open the report
-# macOS
-open coverage/html/index.html
-# Linux
-xdg-open coverage/html/index.html
-```
-
-### Installing lcov
-
-```bash
-# macOS
-brew install lcov
-
-# Ubuntu/Debian
-sudo apt-get install lcov
+make coverage
 ```
 
 ### Run a Specific Test File
 
 ```bash
 flutter test test/your_test_file_test.dart
+```
+
+### What CI Runs
+
+```bash
+make ci    # format-check + analyze + test
 ```
 
 ---
@@ -214,8 +292,24 @@ flutter test test/your_test_file_test.dart
 - **Storage**: path_provider
 - **Image Handling**: image_picker
 - **File Operations**: file_picker, share_plus
+- **Networking**: http (cover image search only)
 - **UI Components**: Material Design + Google Fonts
 - **Internationalization**: intl
+
+### Cover image search
+
+When you tap **Search online** on the cover picker, BoardPocket queries two
+public APIs that need **no API key and no account**:
+
+| Source | Endpoint | Notes |
+| --- | --- | --- |
+| [Openverse](https://openverse.org) | `https://api.openverse.org/v1/images` | Creative Commons images, ~20 req/min anonymous |
+| [Wikimedia Commons](https://commons.wikimedia.org) | `https://commons.wikimedia.org/w/api.php` | Public domain / CC images |
+
+Results are meant as a **visual reference**, not an official box scan. Only the
+image URL is stored — nothing is downloaded, re-encoded, or tracked, and the app
+sends no information about your collection. If you'd rather stay fully offline,
+just don't use the search and keep uploading your own images.
 
 ## 🤝 Contributing
 
@@ -246,12 +340,20 @@ We love contributions! Here's how you can help:
 
 - [X] Board game statistics and analytics dashboard
 - [X] Player profiles and win/loss tracking
-- [ ] Integration with BoardGameGeek API
+- [X] Dice roller with selectable dice types
+- [X] Cover image search (free, key-less APIs)
 - [ ] Game recommendations based on collection
 - [ ] Social features (share collections)
 - [ ] Game session timer
 - [ ] Score keeping tools
 - [ ] Barcode scanner for quick game addition
+
+> **Why there is no BoardGameGeek integration here:** the BGG XML API is now
+> paid and requires an authenticated token. BoardPocket is deliberately
+> local-first with no account, no server, and no third-party ownership of your
+> data, so a paid, account-gated catalog service does not fit the project's
+> goals. The free cover search above is the piece that actually helps at the
+> moment you are adding a game.
 
 ## 🌟 Support
 

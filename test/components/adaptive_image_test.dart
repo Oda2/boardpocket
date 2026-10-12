@@ -64,5 +64,73 @@ void main() {
 
       expect(find.byType(ClipRRect), findsOneWidget);
     });
+
+    testWidgets('renders localPath as a network image when it is a url', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: AdaptiveImage(localPath: 'https://images.example/cover.jpg'),
+          ),
+        ),
+      );
+
+      final image = tester.widget<Image>(find.byType(Image));
+      expect(image.image, isA<NetworkImage>());
+      expect(
+        (image.image as NetworkImage).url,
+        'https://images.example/cover.jpg',
+      );
+    });
+
+    testWidgets('renders a local file path as a FileImage', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: AdaptiveImage(localPath: '/tmp/cover.jpg')),
+        ),
+      );
+
+      final image = tester.widget<Image>(find.byType(Image));
+      expect(image.image, isA<FileImage>());
+    });
+
+    testWidgets('shows error widget when a remote url fails to load', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: AdaptiveImage(localPath: 'https://nope.invalid'),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      expect(find.byIcon(Icons.broken_image), findsOneWidget);
+    });
+
+    testWidgets('networkUrl takes precedence over localPath', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: AdaptiveImage(
+              localPath: '/tmp/cover.jpg',
+              networkUrl: 'https://images.example/preferred.jpg',
+            ),
+          ),
+        ),
+      );
+
+      final image = tester.widget<Image>(find.byType(Image));
+      expect(
+        (image.image as NetworkImage).url,
+        'https://images.example/preferred.jpg',
+      );
+    });
   });
 }

@@ -16,6 +16,7 @@ import '../../presentation/providers/player_provider.dart';
 import '../../presentation/providers/settings_provider.dart';
 import '../../presentation/providers/wishlist_provider.dart';
 import '../../presentation/providers/challenge_provider.dart';
+import '../../presentation/providers/dice_provider.dart';
 
 class DependencyInjection {
   static final DependencyInjection _instance = DependencyInjection._internal();
@@ -202,5 +203,6 @@ List<ChangeNotifierProvider> getProviders() {
           SettingsProvider(repository: di.settingsRepository!)..loadSettings(),
     ),
     ChangeNotifierProvider(create: (_) => ChallengeProvider()),
+    ChangeNotifierProvider(create: (_) => DiceProvider()),
   ];
 }

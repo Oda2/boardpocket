@@ -29,7 +29,9 @@ class BackupService {
     final file = File('${directory.path}/boardpocket_backup.json');
     await file.writeAsString(jsonData);
 
-    await Share.shareXFiles([XFile(file.path)], subject: 'BoardPocket Backup');
+    await SharePlus.instance.share(
+      ShareParams(files: [XFile(file.path)], subject: 'BoardPocket Backup'),
+    );
   }
 
   Future<void> exportToFile() async {
@@ -42,18 +44,18 @@ class BackupService {
 
   Future<bool> importFromFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      // file_picker 13 returns a single PlatformFile (null when cancelled).
+      final picked = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
 
-      if (result != null && result.files.single.path != null) {
-        final file = File(result.files.single.path!);
-        final jsonString = await file.readAsString();
-        await importFromJson(jsonString);
-        return true;
-      }
-      return false;
+      if (picked == null) return false;
+
+      // readAsBytes() works on both web and mobile/desktop.
+      final jsonString = utf8.decode(await picked.readAsBytes());
+      await importFromJson(jsonString);
+      return true;
     } catch (e) {
       print('Error importing backup: $e');
       return false;
@@ -66,8 +68,11 @@ class BackupService {
 
   Future<void> shareDatabase() async {
     final dbPath = await getDatabasePath();
-    await Share.shareXFiles([
-      XFile(dbPath),
-    ], subject: 'BoardPocket Database Backup');
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(dbPath)],
+        subject: 'BoardPocket Database Backup',
+      ),
+    );
   }
 }

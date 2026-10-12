@@ -44,6 +44,15 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const RandomGamePickerScreen(),
     ),
     GoRoute(
+      path: '/randomizer-dice',
+      builder: (context, state) => const DiceRollerScreen(),
+    ),
+    GoRoute(
+      path: '/search-cover',
+      builder: (context, state) =>
+          CoverSearchScreen(initialQuery: state.uri.queryParameters['q']),
+    ),
+    GoRoute(
       path: '/wishlist',
       builder: (context, state) => const WishlistScreen(),
     ),

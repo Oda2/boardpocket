@@ -144,6 +144,27 @@ class AppLocalizations {
       'game': 'Game',
       'plays': 'Plays',
       'win_rate_short': 'Win %',
+
+      // Dice Roller Screen
+      'dice_roller': 'Dice Roller',
+      'dice_roller_desc': 'Pick your dice and roll them.',
+      'select_dice': 'Select your dice',
+      'select_dice_desc': 'Tap to add a die, use the - button to remove one.',
+      'no_dice_selected': 'No dice selected yet. Pick one above to start.',
+      'your_pool': 'Your pool',
+      'roll_result': 'Result',
+      'roll': 'Roll',
+      'roll_dice': 'ROLL THE DICE',
+      'rolling': 'Rolling...',
+      'total': 'Total',
+
+      // Cover Search Screen
+      'search_covers': 'Search Covers',
+      'search_covers_hint': 'Type a game name...',
+      'cover_search_error': 'Could not reach the image search',
+      'cover_search_error_desc':
+          'Check your connection and try searching again.',
+      'open_source': 'Open source',
     },
     'pt': {
       'app_name': 'BoardPocket',
@@ -275,6 +296,29 @@ class AppLocalizations {
       'game': 'Jogo',
       'plays': 'Partidas',
       'win_rate_short': 'Vitória %',
+
+      // Dice Roller Screen
+      'dice_roller': 'Rolador de Dados',
+      'dice_roller_desc': 'Escolha seus dados e role.',
+      'select_dice': 'Selecione seus dados',
+      'select_dice_desc':
+          'Toque para adicionar um dado, use o botão - para remover.',
+      'no_dice_selected':
+          'Nenhum dado selecionado. Escolha um acima para começar.',
+      'your_pool': 'Seus dados',
+      'roll_result': 'Resultado',
+      'roll': 'Rolagem',
+      'roll_dice': 'ROLAR OS DADOS',
+      'rolling': 'Rolando...',
+      'total': 'Total',
+
+      // Cover Search Screen
+      'search_covers': 'Buscar Capas',
+      'search_covers_hint': 'Digite o nome do jogo...',
+      'cover_search_error': 'Não foi possível buscar as imagens',
+      'cover_search_error_desc':
+          'Verifique sua conexão e tente buscar novamente.',
+      'open_source': 'Abrir origem',
     },
     'es': {
       'app_name': 'BoardPocket',
@@ -406,6 +450,27 @@ class AppLocalizations {
       'game': 'Juego',
       'plays': 'Partidas',
       'win_rate_short': 'Victoria %',
+
+      // Dice Roller Screen
+      'dice_roller': 'Lanzador de Dados',
+      'dice_roller_desc': 'Elige tus dados y lánzalos.',
+      'select_dice': 'Selecciona tus dados',
+      'select_dice_desc':
+          'Toca para añadir un dado, usa el botón - para quitarlo.',
+      'no_dice_selected': 'Aún no hay dados. Elige uno arriba para empezar.',
+      'your_pool': 'Tus dados',
+      'roll_result': 'Resultado',
+      'roll': 'Tirada',
+      'roll_dice': 'LANZAR LOS DADOS',
+      'rolling': 'Lanzando...',
+      'total': 'Total',
+
+      // Cover Search Screen
+      'search_covers': 'Buscar Portadas',
+      'search_covers_hint': 'Escribe el nombre del juego...',
+      'cover_search_error': 'No se pudo buscar las imágenes',
+      'cover_search_error_desc': 'Revisa tu conexión e inténtalo de nuevo.',
+      'open_source': 'Abrir origen',
     },
   };
 
@@ -562,6 +627,26 @@ class AppLocalizations {
   String get game => getString('game');
   String get plays => getString('plays');
   String get winRateShort => getString('win_rate_short');
+
+  // Dice Roller Screen
+  String get diceRoller => getString('dice_roller');
+  String get diceRollerDesc => getString('dice_roller_desc');
+  String get selectDice => getString('select_dice');
+  String get selectDiceDesc => getString('select_dice_desc');
+  String get noDiceSelected => getString('no_dice_selected');
+  String get yourPool => getString('your_pool');
+  String get rollResult => getString('roll_result');
+  String get roll => getString('roll');
+  String get rollDice => getString('roll_dice');
+  String get rolling => getString('rolling');
+  String get total => getString('total');
+
+  // Cover Search Screen
+  String get searchCovers => getString('search_covers');
+  String get searchCoversHint => getString('search_covers_hint');
+  String get coverSearchError => getString('cover_search_error');
+  String get coverSearchErrorDesc => getString('cover_search_error_desc');
+  String get openSource => getString('open_source');
 
   String getLanguageDisplayName(String code) {
     switch (code) {

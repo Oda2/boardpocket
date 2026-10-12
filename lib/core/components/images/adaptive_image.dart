@@ -1,7 +1,13 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/image_paths.dart';
+import '../../utils/image_provider.dart';
 
+/// Renders a game cover from either a local file path or a remote URL.
+///
+/// Both are stored in the same `Game.imagePath` field, so the source is
+/// detected from the value itself. Use [networkUrl] when you already know the
+/// image is remote (for example a search result preview).
 class AdaptiveImage extends StatelessWidget {
   final String? localPath;
   final String? networkUrl;
@@ -35,19 +41,15 @@ class AdaptiveImage extends StatelessWidget {
   }
 
   Widget _buildImage(BuildContext context) {
-    if (localPath != null && localPath!.isNotEmpty) {
-      return Image.file(
-        File(localPath!),
-        width: width,
-        height: height,
-        fit: fit,
-        errorBuilder: (context, error, stackTrace) => _buildError(),
-      );
-    }
+    final remote = networkUrl?.isNotEmpty == true
+        ? networkUrl!
+        : (localPath != null && isRemoteImagePath(localPath!)
+              ? localPath!
+              : null);
 
-    if (networkUrl != null && networkUrl!.isNotEmpty) {
+    if (remote != null) {
       return Image.network(
-        networkUrl!,
+        remote,
         width: width,
         height: height,
         fit: fit,
@@ -55,6 +57,17 @@ class AdaptiveImage extends StatelessWidget {
           if (loadingProgress == null) return child;
           return _buildLoading(loadingProgress);
         },
+        errorBuilder: (context, error, stackTrace) => _buildError(),
+      );
+    }
+
+    final provider = resolveImageProvider(localPath ?? '');
+    if (provider != null) {
+      return Image(
+        image: provider,
+        width: width,
+        height: height,
+        fit: fit,
         errorBuilder: (context, error, stackTrace) => _buildError(),
       );
     }

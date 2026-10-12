@@ -83,6 +83,13 @@ class RandomizerScreen extends StatelessWidget {
                             description: l10n.challengesDesc,
                             onTap: () => context.push('/randomizer-challenge'),
                           ),
+                          const SizedBox(height: 16),
+                          OptionCard(
+                            icon: Icons.casino_outlined,
+                            title: l10n.diceRoller,
+                            description: l10n.diceRollerDesc,
+                            onTap: () => context.push('/randomizer-dice'),
+                          ),
                           const SizedBox(height: 24),
                         ],
                       ),

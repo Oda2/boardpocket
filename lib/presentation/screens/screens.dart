@@ -11,3 +11,5 @@ export 'settings_screen.dart';
 export 'random_game_picker_screen.dart';
 export 'ranking_screen.dart';
 export 'privacy_policy_screen.dart';
+export 'dice_roller_screen.dart';
+export 'cover_search_screen.dart';

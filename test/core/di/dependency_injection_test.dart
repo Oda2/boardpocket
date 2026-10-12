@@ -51,7 +51,7 @@ void main() {
         final providers = getProviders();
 
         expect(providers, isA<List<ChangeNotifierProvider>>());
-        expect(providers.length, equals(5));
+        expect(providers.length, equals(6));
       });
     });
   });

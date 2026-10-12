@@ -110,6 +110,23 @@ class _GameFormScreenState extends State<_GameFormScreen> {
     context.pop();
   }
 
+  /// Opens the online cover search, pre-filled with the title already typed.
+  ///
+  /// Returns the chosen image URL, which is stored as-is in `imagePath`:
+  /// nothing is downloaded, the platform fetches it when the card is shown.
+  Future<void> _searchCover() async {
+    final title = _titleController.text.trim();
+    final location = Uri(
+      path: '/search-cover',
+      queryParameters: {if (title.isNotEmpty) 'q': title},
+    );
+
+    final imageUrl = await context.push<String>(location.toString());
+    if (imageUrl != null && mounted) {
+      setState(() => _selectedImagePath = imageUrl);
+    }
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -139,18 +156,19 @@ class _GameFormScreenState extends State<_GameFormScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ImageUpload(
-                      imagePath: _selectedImagePath,
-                      hintText: l10n.uploadCover,
-                      onImageSelected: (path) =>
-                          setState(() => _selectedImagePath = path),
-                    ),
-                    const SizedBox(height: 24),
                     _buildTextField(
                       label: l10n.gameTitle,
                       controller: _titleController,
                       hint: l10n.enterGameTitle,
                       icon: Icons.label_outline,
+                    ),
+                    const SizedBox(height: 24),
+                    ImageUpload(
+                      imagePath: _selectedImagePath,
+                      hintText: l10n.uploadCover,
+                      onImageSelected: (path) =>
+                          setState(() => _selectedImagePath = path),
+                      onSearchTap: _searchCover,
                     ),
                     const SizedBox(height: 24),
                     _buildRow([

@@ -35,7 +35,7 @@ class GameCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 3,
+              flex: 5,
               child: AdaptiveImage(
                 localPath: imagePath,
                 width: width,
@@ -45,36 +45,55 @@ class GameCard extends StatelessWidget {
               ),
             ),
             Expanded(
-              flex: 1,
+              flex: 2,
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                    // Flexible + FittedBox keeps the card from overflowing
+                    // when the grid renders it at small sizes.
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        _InfoChip(
-                          icon: Icons.people_outline,
-                          text: players,
-                          isDark: isDark,
+                    const SizedBox(height: 4),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _InfoChip(
+                              icon: Icons.people_outline,
+                              text: players,
+                              isDark: isDark,
+                            ),
+                            const SizedBox(width: 10),
+                            _InfoChip(
+                              icon: Icons.schedule_outlined,
+                              text: time,
+                              isDark: isDark,
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        _InfoChip(
-                          icon: Icons.schedule_outlined,
-                          text: time,
-                          isDark: isDark,
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),

@@ -28,6 +28,9 @@ class MockGoRouterState implements GoRouterState {
   final String? fullPath;
 
   @override
+  final Map<String, Object?> metadata = {};
+
+  @override
   final String? name;
 
   @override
@@ -75,7 +78,7 @@ void main() {
       final routes = appRouter.configuration.routes
           .whereType<GoRoute>()
           .toList();
-      expect(routes.length, 15);
+      expect(routes.length, 17);
     });
 
     test('should have root route', () {
@@ -168,6 +171,22 @@ void main() {
       expect(randomGameRoute.path, '/randomizer-game');
     });
 
+    test('should have randomizer-dice route', () {
+      final routes = appRouter.configuration.routes
+          .whereType<GoRoute>()
+          .toList();
+      final diceRoute = routes.firstWhere((r) => r.path == '/randomizer-dice');
+      expect(diceRoute.path, '/randomizer-dice');
+    });
+
+    test('should have search-cover route', () {
+      final routes = appRouter.configuration.routes
+          .whereType<GoRoute>()
+          .toList();
+      final coverRoute = routes.firstWhere((r) => r.path == '/search-cover');
+      expect(coverRoute.path, '/search-cover');
+    });
+
     test('should have wishlist route', () {
       final routes = appRouter.configuration.routes
           .whereType<GoRoute>()
@@ -230,12 +249,14 @@ void main() {
       expect(paths.contains('/ranking'), isTrue);
       expect(paths.contains('/randomizer-challenge'), isTrue);
       expect(paths.contains('/randomizer-game'), isTrue);
+      expect(paths.contains('/randomizer-dice'), isTrue);
+      expect(paths.contains('/search-cover'), isTrue);
       expect(paths.contains('/wishlist'), isTrue);
       expect(paths.contains('/add-wishlist'), isTrue);
       expect(paths.contains('/edit-wishlist/:id'), isTrue);
       expect(paths.contains('/settings'), isTrue);
       expect(paths.contains('/privacy-policy'), isTrue);
-      expect(paths.length, 15);
+      expect(paths.length, 17);
     });
   });
 
@@ -332,6 +353,22 @@ void main() {
         expect(randomGameRoute.builder, isNotNull);
       },
     );
+
+    test('randomizer-dice route should have DiceRollerScreen builder', () {
+      final routes = appRouter.configuration.routes
+          .whereType<GoRoute>()
+          .toList();
+      final diceRoute = routes.firstWhere((r) => r.path == '/randomizer-dice');
+      expect(diceRoute.builder, isNotNull);
+    });
+
+    test('search-cover route should have CoverSearchScreen builder', () {
+      final routes = appRouter.configuration.routes
+          .whereType<GoRoute>()
+          .toList();
+      final coverRoute = routes.firstWhere((r) => r.path == '/search-cover');
+      expect(coverRoute.builder, isNotNull);
+    });
 
     test('wishlist route should have WishlistScreen builder', () {
       final routes = appRouter.configuration.routes
@@ -488,6 +525,24 @@ void main() {
       );
       final widget = randomGameRoute.builder!(mockContext, MockGoRouterState());
       expect(widget, isA<RandomGamePickerScreen>());
+    });
+
+    test('randomizer-dice route builder returns DiceRollerScreen', () {
+      final routes = appRouter.configuration.routes
+          .whereType<GoRoute>()
+          .toList();
+      final diceRoute = routes.firstWhere((r) => r.path == '/randomizer-dice');
+      final widget = diceRoute.builder!(mockContext, MockGoRouterState());
+      expect(widget, isA<DiceRollerScreen>());
+    });
+
+    test('search-cover route builder returns CoverSearchScreen', () {
+      final routes = appRouter.configuration.routes
+          .whereType<GoRoute>()
+          .toList();
+      final coverRoute = routes.firstWhere((r) => r.path == '/search-cover');
+      final widget = coverRoute.builder!(mockContext, MockGoRouterState());
+      expect(widget, isA<CoverSearchScreen>());
     });
 
     test('wishlist route builder returns WishlistScreen', () {
