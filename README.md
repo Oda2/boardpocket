@@ -240,10 +240,23 @@ Pushing a `v*` tag runs `.github/workflows/release.yml`, which:
 
 # 2. commit, tag and push
 git add pubspec.yaml
-git commit -m "chore: release v0.1.5"
-git tag v0.1.5
+git commit -m "chore: release 0.1.5"
+
+# both tag styles work: v0.1.5 and 0.1.5
+git tag 0.1.5
 git push origin main --follow-tags
 ```
+
+> **Important:** the workflow file has to be on the **default branch** before
+> the tag is pushed, otherwise GitHub has nothing to run. If a tag was pushed
+> too early, delete it on the remote and push it again:
+>
+> ```bash
+> git push origin :refs/tags/0.1.5 && git push origin 0.1.5
+> ```
+>
+> You can also trigger a release by hand from the **Actions** tab using the
+> **Run workflow** button.
 
 The APK and AAB land under the tag's **Assets** on the GitHub Releases page.
 
