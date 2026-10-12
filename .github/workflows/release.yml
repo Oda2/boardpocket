@@ -27,9 +27,10 @@ on:
 permissions:
   contents: write # push the gh-pages branch and create the GitHub Release
 
-# Never let two releases race for the Pages deployment.
+# Serialize whole release runs so two tags cannot race for the gh-pages
+# branch or a Release.
 concurrency:
-  group: pages-${{ github.ref }}
+  group: release-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -122,8 +123,8 @@ jobs:
           BOARD_STORE_PASSWORD=${STORE_PASSWORD_VALUE:-boardpocket}
           EOF
 
-          if ! grep -q .env .gitignore; then
-            echo "::warning::.env is not git-ignored; refusing to continue."
+          if ! grep -q '^\.env$' .gitignore; then
+            echo "::error::.env is not git-ignored; refusing to write signing credentials."
             exit 1
           fi
 
@@ -278,6 +279,10 @@ jobs:
     needs: android
     runs-on: ubuntu-latest
     steps:
+      # Required: `gh` resolves the repository and validates the tag through
+      # git, and fails with "not a git repository" without a checkout.
+      - uses: actions/checkout@v6
+
       - name: Download Android artifacts
         uses: actions/download-artifact@v6
         with:
