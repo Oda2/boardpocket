@@ -30,17 +30,47 @@ class AdaptiveImage extends StatelessWidget {
     this.errorWidget,
   });
 
+  /// Upper bound for the decode size. Past this the memory saved no longer
+  /// justifies another resampling pass.
+  static const int kMaxDecodeWidth = 2048;
+
   @override
   Widget build(BuildContext context) {
-    final imageWidget = _buildImage(context);
-
-    if (borderRadius != null) {
-      return ClipRRect(borderRadius: borderRadius!, child: imageWidget);
-    }
-    return imageWidget;
+    // Decode at display size. Without cacheWidth/cacheHeight Flutter decodes
+    // the full-resolution bitmap, so a 4000x3000 photo costs ~48 MB of RAM per
+    // card - which is what made huge covers choke the collection grid, mostly
+    // on the web where there is no native thumbnail cache to lean on.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final target = _decodeWidth(context, constraints);
+        return _wrap(_buildImage(context, target));
+      },
+    );
   }
 
-  Widget _buildImage(BuildContext context) {
+  /// Largest width the image will actually be painted at, in device pixels.
+  int? _decodeWidth(BuildContext context, BoxConstraints constraints) {
+    var logical = width;
+    if (logical == null || !logical.isFinite || logical <= 0) {
+      logical = constraints.maxWidth.isFinite && constraints.maxWidth > 0
+          ? constraints.maxWidth
+          : null;
+    }
+    if (logical == null) return null;
+
+    final ratio = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1.0;
+    final pixels = (logical * ratio).ceil();
+    return pixels > kMaxDecodeWidth ? kMaxDecodeWidth : pixels;
+  }
+
+  Widget _wrap(Widget image) {
+    if (borderRadius != null) {
+      return ClipRRect(borderRadius: borderRadius!, child: image);
+    }
+    return image;
+  }
+
+  Widget _buildImage(BuildContext context, int? cacheWidth) {
     final remote = networkUrl?.isNotEmpty == true
         ? networkUrl!
         : (localPath != null && isRemoteImagePath(localPath!)
@@ -48,14 +78,17 @@ class AdaptiveImage extends StatelessWidget {
               : null);
 
     if (remote != null) {
-      return Image.network(
-        remote,
+      // ResizeImage is how you ask Flutter to decode at a smaller size; the
+      // Image.network/file constructors have no cacheWidth of their own.
+      return Image(
+        image: ResizeImage(NetworkImage(remote), width: cacheWidth),
         width: width,
         height: height,
         fit: fit,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return _buildLoading(loadingProgress);
+        gaplessPlayback: true,
+        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+          if (wasSynchronouslyLoaded || frame != null) return child;
+          return _buildLoading(null);
         },
         errorBuilder: (context, error, stackTrace) => _buildError(),
       );
@@ -64,10 +97,11 @@ class AdaptiveImage extends StatelessWidget {
     final provider = resolveImageProvider(localPath ?? '');
     if (provider != null) {
       return Image(
-        image: provider,
+        image: ResizeImage(provider, width: cacheWidth),
         width: width,
         height: height,
         fit: fit,
+        gaplessPlayback: true,
         errorBuilder: (context, error, stackTrace) => _buildError(),
       );
     }
@@ -75,14 +109,15 @@ class AdaptiveImage extends StatelessWidget {
     return _buildPlaceholder();
   }
 
-  Widget _buildLoading(ImageChunkEvent loadingProgress) {
+  Widget _buildLoading(ImageChunkEvent? loadingProgress) {
     return Container(
       width: width,
       height: height,
       color: AppColors.primary.withValues(alpha: 0.1),
       child: Center(
         child: CircularProgressIndicator(
-          value: loadingProgress.expectedTotalBytes != null
+          value: loadingProgress != null &&
+                  loadingProgress.expectedTotalBytes != null
               ? loadingProgress.cumulativeBytesLoaded /
                     loadingProgress.expectedTotalBytes!
               : null,

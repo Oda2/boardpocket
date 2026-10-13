@@ -37,6 +37,10 @@ class _GameFormScreenState extends State<_GameFormScreen> {
   String? _selectedImagePath;
   int _minPlayers = 1;
   int _maxPlayers = 4;
+
+  /// Upper bound for the player selectors. Party games go well past 20
+  /// (Werewolf, Billionaires' Club is 4-45), so this stays generous.
+  static const int kMaxPlayerCount = 99;
   int _playTime = 60;
   int _complexity = 3;
   String _category = 'Strategy';
@@ -68,7 +72,7 @@ class _GameFormScreenState extends State<_GameFormScreen> {
         _titleController.text = game.title;
         _selectedImagePath = game.imagePath;
         _minPlayers = game.minPlayers ?? 1;
-        _maxPlayers = game.maxPlayers ?? 4;
+        _maxPlayers = (game.maxPlayers ?? 4).clamp(_minPlayers, kMaxPlayerCount);
         _playTime = game.playTime ?? 60;
         _complexity = (game.complexity ?? 3).toInt();
         _category = game.category;
@@ -173,11 +177,13 @@ class _GameFormScreenState extends State<_GameFormScreen> {
                       onImageSelected: (path) =>
                           setState(() => _selectedImagePath = path),
                       onSearchTap: _searchCover,
+                      onImageRemoved: (path) =>
+                          setState(() => _selectedImagePath = path),
                     ),
                     const SizedBox(height: 24),
                     _buildRow([
                       _buildNumberSelector(
-                        label: l10n.players,
+                        label: l10n.minPlayers,
                         value: _minPlayers,
                         min: 1,
                         max: _maxPlayers,
@@ -185,14 +191,22 @@ class _GameFormScreenState extends State<_GameFormScreen> {
                       ),
                       const SizedBox(width: 16),
                       _buildNumberSelector(
-                        label: l10n.playTime,
-                        value: _playTime,
-                        min: 5,
-                        max: 480,
-                        suffix: 'm',
-                        onChanged: (v) => setState(() => _playTime = v),
+                        label: l10n.maxPlayers,
+                        value: _maxPlayers,
+                        min: _minPlayers,
+                        max: kMaxPlayerCount,
+                        onChanged: (v) => setState(() => _maxPlayers = v),
                       ),
                     ]),
+                    const SizedBox(height: 24),
+                    _buildNumberSelector(
+                      label: l10n.playTime,
+                      value: _playTime,
+                      min: 5,
+                      max: 480,
+                      suffix: 'm',
+                      onChanged: (v) => setState(() => _playTime = v),
+                    ),
                     const SizedBox(height: 24),
                     _buildChipSelector(
                       label: l10n.category,

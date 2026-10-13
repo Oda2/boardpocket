@@ -10,6 +10,8 @@ import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/models.dart';
 import '../providers/game_provider.dart';
+import '../providers/wishlist_provider.dart';
+import 'package:uuid/uuid.dart';
 
 class GameDetailScreen extends StatefulWidget {
   final String gameId;
@@ -165,10 +167,60 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             _buildLastPlayedSection(l10n, isDark),
             const SizedBox(height: 32),
             _buildPlayButtons(context, l10n),
+            const SizedBox(height: 24),
+            _buildWishlistButton(context, l10n),
             const SizedBox(height: 100),
           ],
         ),
       ),
+    );
+  }
+
+  /// Sends this game to the wishlist with its title, cover, player count and
+  /// play time already filled in, so nothing has to be retyped.
+  Widget _buildWishlistButton(BuildContext context, AppLocalizations l10n) {
+    final wishlist = context.watch<WishlistProvider>();
+    final game = _game!;
+    final already = wishlist.findByTitle(game.title);
+
+    return SizedBox(
+      width: double.infinity,
+      child: already == null
+          ? AppButton(
+              label: l10n.addToWishlist,
+              icon: Icons.favorite_border,
+              isSecondary: true,
+              onPressed: () => _addToWishlist(context, game, wishlist),
+            )
+          : AppButton(
+              label: l10n.alreadyOnWishlist,
+              icon: Icons.favorite,
+              isSecondary: true,
+              onPressed: () => context.go('/wishlist'),
+            ),
+    );
+  }
+
+  Future<void> _addToWishlist(
+    BuildContext context,
+    Game game,
+    WishlistProvider wishlist,
+  ) async {
+    final item = WishlistItem(
+      id: const Uuid().v4(),
+      title: game.title,
+      imagePath: game.imagePath,
+      players: game.players,
+      time: game.time,
+      category: game.category,
+      createdAt: DateTime.now(),
+    );
+
+    await context.read<WishlistProvider>().addItem(item);
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${game.title} ${AppLocalizations.of(context).addedToWishlist}')),
     );
   }
 

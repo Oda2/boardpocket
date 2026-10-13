@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:go_router/go_router.dart';
+
 import '../../router/router.dart';
 
 import 'package:provider/provider.dart';
@@ -9,6 +11,7 @@ import '../../core/components/components.dart';
 import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/models.dart';
+import '../../data/services/services.dart';
 import '../providers/providers.dart';
 
 class AddWishlistScreen extends StatelessWidget {
@@ -138,7 +141,10 @@ class _WishlistFormScreenState extends State<_WishlistFormScreen> {
                       controller: _titleController,
                       hint: 'Enter game name',
                       icon: Icons.games_outlined,
+                      onChanged: (_) => setState(() {}),
                     ),
+                    const SizedBox(height: 12),
+                    _buildStoreLinks(l10n),
                     const SizedBox(height: 24),
                     _buildTextField(
                       label: 'Image URL',
@@ -147,6 +153,15 @@ class _WishlistFormScreenState extends State<_WishlistFormScreen> {
                       icon: Icons.image_outlined,
                       keyboardType: TextInputType.url,
                       onChanged: (_) => setState(() {}),
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: _searchCover,
+                        icon: const Icon(Icons.image_search, size: 20),
+                        label: Text(l10n.searchCovers),
+                      ),
                     ),
                     if (_imageUrlController.text.isNotEmpty) ...[
                       const SizedBox(height: 16),
@@ -206,6 +221,49 @@ class _WishlistFormScreenState extends State<_WishlistFormScreen> {
         ],
       ),
     );
+  }
+
+  /// Opens each storefront's search page for the title already typed.
+  Widget _buildStoreLinks(AppLocalizations l10n) {
+    final title = _titleController.text.trim();
+    if (title.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.searchWhereToBuy,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final entry in StoreSearch.entries)
+              ActionChip(
+                avatar: Icon(entry.icon, size: 18),
+                label: Text(entry.label),
+                onPressed: () => StoreSearch.open(entry, title),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Looks up a cover reference with the same free search used on the game
+  /// form, and stores the chosen URL.
+  Future<void> _searchCover() async {
+    final title = _titleController.text.trim();
+    final location = Uri(
+      path: '/search-cover',
+      queryParameters: {if (title.isNotEmpty) 'q': title},
+    );
+    final imageUrl = await context.push<String>(location.toString());
+    if (imageUrl != null && mounted) {
+      setState(() => _imageUrlController.text = imageUrl);
+    }
   }
 
   Widget _buildTextField({

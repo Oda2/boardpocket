@@ -174,14 +174,12 @@ class CoverSearchService {
 
     final attempts = await Future.wait(futures);
 
-    final items = <CoverImageResult>[];
     CoverSearchFailure? failure;
     var anyResponded = false;
+    final buckets = <List<CoverImageResult>>[];
 
     for (final attempt in attempts) {
-      for (final item in attempt.items) {
-        if (!items.contains(item)) items.add(item);
-      }
+      buckets.add(attempt.items);
       if (attempt.failure == null) {
         anyResponded = true;
       } else {
@@ -190,7 +188,36 @@ class CoverSearchService {
       }
     }
 
-    return _Attempt(items.take(limit).toList(), failure, anyResponded);
+    return _Attempt(_interleave(buckets, limit), failure, anyResponded);
+  }
+
+  /// Round-robins across sources so no single one fills the whole page.
+  ///
+  /// Concatenating and then truncating meant Openverse's 24 results always
+  /// filled the limit, and Wikipedia never showed up at all.
+  static List<CoverImageResult> _interleave(
+    List<List<CoverImageResult>> buckets,
+    int limit,
+  ) {
+    final merged = <CoverImageResult>[];
+    final seen = <CoverImageResult>{};
+
+    for (var round = 0; merged.length < limit; round++) {
+      var addedThisRound = false;
+      for (final bucket in buckets) {
+        if (round >= bucket.length) continue;
+        final item = bucket[round];
+        if (seen.add(item)) {
+          merged.add(item);
+          addedThisRound = true;
+          if (merged.length >= limit) break;
+        }
+      }
+      // Every bucket is exhausted.
+      if (!addedThisRound) break;
+    }
+
+    return merged;
   }
 
   /// Runs one source, converting *any* error into a failed attempt.

@@ -7,6 +7,9 @@ import 'package:boardpocket/presentation/providers/game_provider.dart';
 import 'package:boardpocket/data/models/game.dart';
 import 'package:boardpocket/data/repositories/interfaces/game_repository_interface.dart';
 import 'package:boardpocket/core/i18n/app_localizations.dart';
+import 'package:boardpocket/data/models/wishlist_item.dart';
+import 'package:boardpocket/data/repositories/interfaces/wishlist_repository_interface.dart';
+import 'package:boardpocket/presentation/providers/wishlist_provider.dart';
 
 class MockGameRepository implements IGameRepository {
   Game? _mockGame;
@@ -51,13 +54,48 @@ class MockGameRepository implements IGameRepository {
   }
 }
 
+/// The detail screen loads the wishlist so the "add to wishlist" button can
+/// tell whether this game is already there.
+class MockWishlistRepository implements IWishlistRepository {
+  final List<WishlistItem> stored = [];
+
+  @override
+  Future<WishlistItem> create(WishlistItem item) async {
+    stored.add(item);
+    return item;
+  }
+
+  @override
+  Future<void> delete(String id) async => stored.removeWhere((i) => i.id == id);
+
+  @override
+  Future<List<WishlistItem>> getAll() async => List.of(stored);
+
+  @override
+  Future<WishlistItem?> getById(String id) async {
+    for (final item in stored) {
+      if (item.id == id) return item;
+    }
+    return null;
+  }
+
+  @override
+  Future<void> update(WishlistItem item) async {}
+}
+
 Widget createTestWidget({
   required Widget child,
   required GameProvider gameProvider,
+  WishlistProvider? wishlistProvider,
 }) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<GameProvider>.value(value: gameProvider),
+      ChangeNotifierProvider<WishlistProvider>.value(
+        value:
+            wishlistProvider ??
+            WishlistProvider(repository: MockWishlistRepository()),
+      ),
     ],
     child: MaterialApp(
       localizationsDelegates: const [

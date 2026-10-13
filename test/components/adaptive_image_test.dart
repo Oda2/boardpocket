@@ -76,10 +76,13 @@ void main() {
         ),
       );
 
+      // AdaptiveImage wraps the provider in a ResizeImage so huge photos are
+      // decoded at display size rather than full resolution.
       final image = tester.widget<Image>(find.byType(Image));
-      expect(image.image, isA<NetworkImage>());
+      final resize = image.image as ResizeImage;
+      expect(resize.imageProvider, isA<NetworkImage>());
       expect(
-        (image.image as NetworkImage).url,
+        (resize.imageProvider as NetworkImage).url,
         'https://images.example/cover.jpg',
       );
     });
@@ -94,7 +97,7 @@ void main() {
       );
 
       final image = tester.widget<Image>(find.byType(Image));
-      expect(image.image, isA<FileImage>());
+      expect((image.image as ResizeImage).imageProvider, isA<FileImage>());
     });
 
     testWidgets('shows error widget when a remote url fails to load', (
@@ -127,10 +130,66 @@ void main() {
       );
 
       final image = tester.widget<Image>(find.byType(Image));
+      final resize = image.image as ResizeImage;
+      expect(resize.imageProvider, isA<NetworkImage>());
       expect(
-        (image.image as NetworkImage).url,
+        (resize.imageProvider as NetworkImage).url,
         'https://images.example/preferred.jpg',
       );
     });
+
+    testWidgets('caps the decode width so huge photos stay cheap', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 400,
+              height: 400,
+              child: AdaptiveImage(
+                localPath: 'https://images.example/huge.jpg',
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final image = tester.widget<Image>(find.byType(Image));
+      final resize = image.image as ResizeImage;
+      final ratio = MediaQuery.of(tester.element(find.byType(Image)))
+          .devicePixelRatio;
+      final expected = (400 * ratio).ceil();
+
+      expect(
+        resize.width,
+        expected > AdaptiveImage.kMaxDecodeWidth
+            ? AdaptiveImage.kMaxDecodeWidth
+            : expected,
+      );
+    });
+
+    testWidgets(
+      'falls back to the incoming constraints when no width is given',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: AdaptiveImage(localPath: 'https://images.example/a.jpg'),
+              ),
+            ),
+          ),
+        );
+
+        // A vertical scroll view leaves the WIDTH bounded (only the height is
+        // unbounded), so the decode is capped instead of skipped.
+        final image = tester.widget<Image>(find.byType(Image));
+        final resize = image.image as ResizeImage;
+        expect(resize.width, isNotNull);
+        expect(resize.width, lessThanOrEqualTo(AdaptiveImage.kMaxDecodeWidth));
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }

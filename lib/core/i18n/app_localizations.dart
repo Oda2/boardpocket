@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../data/models/challenge.dart';
+import '../../data/models/challenge_translations.dart';
+
 class AppLocalizations {
   final Locale locale;
 
@@ -157,6 +160,14 @@ class AppLocalizations {
       'roll_dice': 'ROLL THE DICE',
       'rolling': 'Rolling...',
       'total': 'Total',
+      'new_challenge': 'New Challenge',
+      'min_players': 'Min players',
+      'max_players': 'Max players',
+      'remove_cover': 'Remove cover',
+      'search_where_to_buy': 'Search where to buy',
+      'add_to_wishlist': 'Add to wishlist',
+      'already_on_wishlist': 'On your wishlist',
+      'added_to_wishlist': 'added to your wishlist',
 
       // Cover Search Screen
       'search_covers': 'Search Covers',
@@ -317,6 +328,14 @@ class AppLocalizations {
       'roll_dice': 'ROLAR OS DADOS',
       'rolling': 'Rolando...',
       'total': 'Total',
+      'new_challenge': 'NOVO DESAFIO',
+      'min_players': 'Mín. jogadores',
+      'max_players': 'Máx. jogadores',
+      'remove_cover': 'Remover capa',
+      'search_where_to_buy': 'Buscar onde comprar',
+      'add_to_wishlist': 'Adicionar à wishlist',
+      'already_on_wishlist': 'Já está na wishlist',
+      'added_to_wishlist': 'adicionado à sua wishlist',
 
       // Cover Search Screen
       'search_covers': 'Buscar Capas',
@@ -475,6 +494,14 @@ class AppLocalizations {
       'roll_dice': 'LANZAR LOS DADOS',
       'rolling': 'Lanzando...',
       'total': 'Total',
+      'new_challenge': 'NUEVO RETO',
+      'min_players': 'Mín. jugadores',
+      'max_players': 'Máx. jugadores',
+      'remove_cover': 'Quitar portada',
+      'search_where_to_buy': 'Buscar dónde comprar',
+      'add_to_wishlist': 'Añadir a la wishlist',
+      'already_on_wishlist': 'Ya está en la wishlist',
+      'added_to_wishlist': 'añadido a tu wishlist',
 
       // Cover Search Screen
       'search_covers': 'Buscar Portadas',
@@ -495,6 +522,37 @@ class AppLocalizations {
     final values = _localizedValues[langCode] ?? _localizedValues['en'];
     return values?[key] ?? 'Missing translation: $key';
   }
+
+  /// Looks a key up in the locale, falling back to English and then to the
+  /// challenge tables. Used for the data-driven challenge strings.
+  String getTranslatedString(String key) {
+    final langCode = locale.languageCode ?? 'en';
+    final direct = _localizedValues[langCode]?[key];
+    if (direct != null) return direct;
+
+    final challenge =
+        challengeTranslations[langCode]?[key] ??
+        challengeTranslations['en']?[key];
+    if (challenge != null) return challenge;
+
+    return getString(key);
+  }
+
+  /// Localised title for a challenge.
+  String challengeTitle(Challenge challenge) =>
+      getTranslatedString(challenge.titleKey);
+
+  /// Localised description for a challenge.
+  String challengeDescription(Challenge challenge) =>
+      getTranslatedString(challenge.descriptionKey);
+
+  /// Localised category name.
+  String challengeCategory(Challenge challenge) =>
+      getTranslatedString(challenge.categoryKey);
+
+  /// Localised difficulty name.
+  String challengeDifficulty(Challenge challenge) =>
+      getTranslatedString(challenge.difficultyKey);
 
   String get appName => getString('app_name');
   String get settings => getString('settings');
@@ -656,6 +714,14 @@ class AppLocalizations {
   String get rollDice => getString('roll_dice');
   String get rolling => getString('rolling');
   String get total => getString('total');
+  String get newChallenge => getString('new_challenge');
+  String get minPlayers => getString('min_players');
+  String get maxPlayers => getString('max_players');
+  String get removeCover => getString('remove_cover');
+  String get searchWhereToBuy => getString('search_where_to_buy');
+  String get addToWishlist => getString('add_to_wishlist');
+  String get alreadyOnWishlist => getString('already_on_wishlist');
+  String get addedToWishlist => getString('added_to_wishlist');
 
   // Cover Search Screen
   String get searchCovers => getString('search_covers');

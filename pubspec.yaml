@@ -2,7 +2,7 @@ name: boardpocket
 description: "BoardPocket - Digital Collection & Randomizer for Board Games"
 publish_to: 'none'
 
-version: 0.1.4+11
+version: 0.1.4+12
 
 environment:
   sdk: ^3.13.0

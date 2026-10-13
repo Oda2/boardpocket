@@ -34,6 +34,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -43,19 +44,19 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(isDark),
+            _buildHeader(l10n, isDark),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildBadge(isDark),
+                    _buildBadge(l10n),
                     const SizedBox(height: 32),
-                    _buildChallengeCard(isDark),
+                    _buildChallengeCard(l10n, isDark),
                     const SizedBox(height: 32),
                     AppButton(
-                      label: 'New Challenge',
+                      label: l10n.newChallenge,
                       icon: Icons.shuffle,
                       onPressed: _shuffleChallenge,
                     ),
@@ -69,7 +70,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     );
   }
 
-  Widget _buildHeader(bool isDark) {
+  Widget _buildHeader(AppLocalizations l10n, bool isDark) {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Row(
@@ -80,8 +81,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
             isDark: isDark,
             onTap: () => context.popOrGo(),
           ),
-          const Text(
-            'Challenge',
+          Text(
+            l10n.challenge,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(width: 48),
@@ -90,7 +91,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     );
   }
 
-  Widget _buildBadge(bool isDark) {
+  Widget _buildBadge(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -103,7 +104,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
           Icon(_getBadgeIcon(), color: _getBadgeColor(), size: 16),
           const SizedBox(width: 8),
           Text(
-            _getBadgeLabel(),
+            _getBadgeLabel(l10n),
             style: TextStyle(
               color: _getBadgeColor(),
               fontWeight: FontWeight.bold,
@@ -114,7 +115,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     );
   }
 
-  Widget _buildChallengeCard(bool isDark) {
+  Widget _buildChallengeCard(AppLocalizations l10n, bool isDark) {
     return ThemeContainer(
       padding: const EdgeInsets.all(32),
       child: Column(
@@ -122,13 +123,17 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
           Icon(_getChallengeIcon(), size: 64, color: AppColors.primary),
           const SizedBox(height: 24),
           Text(
-            _currentChallenge?.title ?? '',
+            _currentChallenge == null
+                ? ''
+                : l10n.challengeTitle(_currentChallenge!),
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           Text(
-            _currentChallenge?.description ?? '',
+            _currentChallenge == null
+                ? ''
+                : l10n.challengeDescription(_currentChallenge!),
             style: TextStyle(
               fontSize: 16,
               color: isDark
@@ -143,12 +148,12 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   }
 
   Color _getBadgeColor() {
-    switch (_currentChallenge?.category) {
-      case 'Easy':
+    switch (_currentChallenge?.difficulty) {
+      case 'easy':
         return Colors.green;
-      case 'Medium':
+      case 'medium':
         return Colors.orange;
-      case 'Hard':
+      case 'hard':
         return Colors.red;
       default:
         return AppColors.primary;
@@ -156,20 +161,23 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   }
 
   IconData _getBadgeIcon() {
-    switch (_currentChallenge?.category) {
-      case 'Easy':
+    switch (_currentChallenge?.difficulty) {
+      case 'easy':
         return Icons.sentiment_satisfied;
-      case 'Medium':
+      case 'medium':
         return Icons.sentiment_neutral;
-      case 'Hard':
+      case 'hard':
         return Icons.sentiment_very_dissatisfied;
       default:
         return Icons.star;
     }
   }
 
-  String _getBadgeLabel() {
-    return _currentChallenge?.category ?? 'Challenge';
+  String _getBadgeLabel(AppLocalizations l10n) {
+    final challenge = _currentChallenge;
+    if (challenge == null) return l10n.challenge;
+    return '${l10n.challengeCategory(challenge)} - '
+        '${l10n.challengeDifficulty(challenge)}';
   }
 
   IconData _getChallengeIcon() {
@@ -191,6 +199,42 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         return Icons.pets;
       case 'checkroom':
         return Icons.checkroom;
+      case 'music_note':
+        return Icons.music_note;
+      case 'theater_comedy':
+        return Icons.theater_comedy;
+      case 'wb_sunny':
+        return Icons.wb_sunny;
+      case 'local_cafe':
+        return Icons.local_cafe;
+      case 'pan_tool':
+        return Icons.pan_tool;
+      case 'beach_access':
+        return Icons.beach_access;
+      case 'abc':
+        return Icons.abc;
+      case 'history':
+        return Icons.history;
+      case 'toll':
+        return Icons.toll;
+      case 'psychology':
+        return Icons.psychology;
+      case 'currency_bitcoin':
+        return Icons.currency_bitcoin;
+      case 'help_outline':
+        return Icons.help_outline;
+      case 'visibility_off':
+        return Icons.visibility_off;
+      case 'waves':
+        return Icons.waves;
+      case 'brush':
+        return Icons.brush;
+      case 'lightbulb':
+        return Icons.lightbulb;
+      case 'auto_stories':
+        return Icons.auto_stories;
+      case 'shuffle':
+        return Icons.shuffle;
       default:
         return Icons.star;
     }

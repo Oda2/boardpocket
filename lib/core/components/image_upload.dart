@@ -14,6 +14,9 @@ class ImageUpload extends StatelessWidget {
   final ValueChanged<String?> onImageSelected;
   final VoidCallback? onSearchTap;
 
+  /// Called when the user clears the current cover.
+  final ValueChanged<String?>? onImageRemoved;
+
   const ImageUpload({
     super.key,
     this.imagePath,
@@ -21,6 +24,7 @@ class ImageUpload extends StatelessWidget {
     this.height = 200,
     required this.onImageSelected,
     this.onSearchTap,
+    this.onImageRemoved,
   });
 
   @override
@@ -49,16 +53,28 @@ class ImageUpload extends StatelessWidget {
                 AdaptiveImage(localPath: imagePath)
               else
                 _buildPlaceholder(isDark),
-              if (hasImage && onSearchTap != null)
-                Positioned(
-                  right: 8,
-                  bottom: 8,
-                  child: _ActionButton(
-                    icon: Icons.image_search,
-                    tooltip: 'Search online',
-                    onPressed: onSearchTap!,
+              if (hasImage) ...[
+                if (onSearchTap != null)
+                  Positioned(
+                    right: 8,
+                    bottom: 8,
+                    child: _ActionButton(
+                      icon: Icons.image_search,
+                      tooltip: 'Search online',
+                      onPressed: onSearchTap!,
+                    ),
                   ),
-                ),
+                if (onImageRemoved != null)
+                  Positioned(
+                    right: onSearchTap != null ? 56 : 8,
+                    bottom: 8,
+                    child: _ActionButton(
+                      icon: Icons.delete_outline,
+                      tooltip: 'Remove cover',
+                      onPressed: () => onImageRemoved!(null),
+                    ),
+                  ),
+              ],
             ],
           ),
         ),

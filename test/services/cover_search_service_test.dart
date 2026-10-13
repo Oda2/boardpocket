@@ -422,6 +422,68 @@ void main() {
       expect(CoverSearchService.queryVariants('catan'), ['catan']);
     });
 
+    test('a full Openverse page no longer hides Wikipedia', () async {
+      // Regression: results used to be concatenated then truncated, so a full
+      // Openverse page filled the whole limit and Wikipedia never showed up.
+      final fullPage = {
+        'results': [
+          for (var i = 0; i < 24; i++)
+            {
+              'url': 'https://images.example/ov$i.jpg',
+              'thumbnail': 'https://images.example/ov${i}_t.jpg',
+              'title': 'Openverse $i',
+            },
+        ],
+      };
+
+      final service = _serviceWith(
+        _FakeClient(openverse: fullPage, commons: const {}, wikipedia: _wikipedia),
+      );
+
+      final result = await service.search('catan');
+
+      expect(
+        result.items.where((r) => r.source.startsWith('Wikipedia')),
+        isNotEmpty,
+        reason: 'Wikipedia must get its share of the page',
+      );
+      expect(
+        result.items.where((r) => r.source == 'Openverse'),
+        isNotEmpty,
+        reason: 'Openverse should still be represented',
+      );
+    });
+
+    test('interleaves sources instead of exhausting the first one', () async {
+      final service = _serviceWith(
+        _FakeClient(
+          openverse: _openverse,
+          commons: _commons,
+          wikipedia: _wikipedia,
+        ),
+      );
+
+      final result = await service.search('catan');
+      final firstFew = result.items.take(4).map((r) => r.source).toList();
+
+      // The first results should come from more than one source.
+      expect(firstFew.toSet().length, greaterThan(1));
+    });
+
+    test('never exceeds the limit while interleaving', () async {
+      final service = _serviceWith(
+        _FakeClient(
+          openverse: _openverse,
+          commons: _commons,
+          wikipedia: _wikipedia,
+        ),
+      );
+
+      final result = await service.search('catan', limit: 3);
+
+      expect(result.items.length, 3);
+    });
+
     test('respects the limit', () async {
       final service = _serviceWith(
         _FakeClient(

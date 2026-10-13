@@ -34,6 +34,17 @@ class WishlistProvider extends ChangeNotifier {
     await loadItems();
   }
 
+  /// Case-insensitive lookup by title, so "add to wishlist" does not create a
+  /// duplicate of a game that is already there.
+  WishlistItem? findByTitle(String title) {
+    final needle = title.trim().toLowerCase();
+    if (needle.isEmpty) return null;
+    for (final item in _items) {
+      if (item.title.trim().toLowerCase() == needle) return item;
+    }
+    return null;
+  }
+
   Future<void> deleteItem(String id) async {
     await _repository.delete(id);
     await loadItems();

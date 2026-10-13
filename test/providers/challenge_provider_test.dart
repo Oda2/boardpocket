@@ -14,8 +14,8 @@ void main() {
       expect(challengeProvider.challenges, defaultChallenges);
     });
 
-    test('should have 8 default challenges', () {
-      expect(challengeProvider.challenges.length, 8);
+    test('should have at least 30 default challenges', () {
+      expect(challengeProvider.challenges.length, greaterThanOrEqualTo(30));
     });
 
     test('should have null current challenge initially', () {
