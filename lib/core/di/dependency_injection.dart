@@ -18,6 +18,7 @@ import '../../presentation/providers/settings_provider.dart';
 import '../../presentation/providers/wishlist_provider.dart';
 import '../../presentation/providers/challenge_provider.dart';
 import '../../presentation/providers/dice_provider.dart';
+import '../../presentation/providers/session_timer_provider.dart';
 
 class DependencyInjection {
   static final DependencyInjection _instance = DependencyInjection._internal();
@@ -211,5 +212,6 @@ List<SingleChildWidget> getProviders() {
     ),
     ChangeNotifierProvider(create: (_) => ChallengeProvider()),
     ChangeNotifierProvider(create: (_) => DiceProvider()),
+    ChangeNotifierProvider(create: (_) => SessionTimerProvider()),
   ];
 }

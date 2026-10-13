@@ -8,6 +8,9 @@ class Game {
   final int? minPlayers;
   final int? maxPlayers;
   final int? playTime;
+
+  /// Duration of the last timed session, in milliseconds.
+  final int? lastSessionMs;
   final double? complexity;
   final int totalPlays;
   final int wins;
@@ -27,6 +30,7 @@ class Game {
     this.minPlayers,
     this.maxPlayers,
     this.playTime,
+    this.lastSessionMs,
     this.complexity,
     this.totalPlays = 0,
     this.wins = 0,
@@ -48,6 +52,7 @@ class Game {
       'min_players': minPlayers,
       'max_players': maxPlayers,
       'play_time': playTime,
+      'last_session_ms': lastSessionMs,
       'complexity': complexity,
       'total_plays': totalPlays,
       'wins': wins,
@@ -70,6 +75,7 @@ class Game {
       minPlayers: map['min_players'] as int?,
       maxPlayers: map['max_players'] as int?,
       playTime: map['play_time'] as int?,
+      lastSessionMs: map['last_session_ms'] as int?,
       complexity: map['complexity'] as double?,
       totalPlays: map['total_plays'] as int? ?? 0,
       wins: map['wins'] as int? ?? 0,
@@ -93,6 +99,7 @@ class Game {
     int? minPlayers,
     int? maxPlayers,
     int? playTime,
+    int? lastSessionMs,
     double? complexity,
     int? totalPlays,
     int? wins,
@@ -112,6 +119,7 @@ class Game {
       minPlayers: minPlayers ?? this.minPlayers,
       maxPlayers: maxPlayers ?? this.maxPlayers,
       playTime: playTime ?? this.playTime,
+      lastSessionMs: lastSessionMs ?? this.lastSessionMs,
       complexity: complexity ?? this.complexity,
       totalPlays: totalPlays ?? this.totalPlays,
       wins: wins ?? this.wins,

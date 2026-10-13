@@ -168,6 +168,21 @@ class AppLocalizations {
       'add_to_wishlist': 'Add to wishlist',
       'already_on_wishlist': 'On your wishlist',
       'added_to_wishlist': 'added to your wishlist',
+      'build_number': 'Build',
+      'session_timer': 'Cronômetro',
+      'session_start': 'Iniciar',
+      'session_pause': 'Pausar',
+      'session_reset': 'Zerar',
+      'session_finish': 'Finalizar',
+      'session_saved': 'Sessão salva',
+      'last_session': 'Última sessão',
+      'session_timer': 'Session timer',
+      'session_start': 'Start',
+      'session_pause': 'Pause',
+      'session_reset': 'Reset',
+      'session_finish': 'Finish',
+      'session_saved': 'Session saved',
+      'last_session': 'Last session',
 
       // Cover Search Screen
       'search_covers': 'Search Covers',
@@ -336,6 +351,7 @@ class AppLocalizations {
       'add_to_wishlist': 'Adicionar à wishlist',
       'already_on_wishlist': 'Já está na wishlist',
       'added_to_wishlist': 'adicionado à sua wishlist',
+      'build_number': 'Build',
 
       // Cover Search Screen
       'search_covers': 'Buscar Capas',
@@ -502,6 +518,14 @@ class AppLocalizations {
       'add_to_wishlist': 'Añadir a la wishlist',
       'already_on_wishlist': 'Ya está en la wishlist',
       'added_to_wishlist': 'añadido a tu wishlist',
+      'build_number': 'Compilación',
+      'session_timer': 'Cronómetro',
+      'session_start': 'Iniciar',
+      'session_pause': 'Pausar',
+      'session_reset': 'Reiniciar',
+      'session_finish': 'Finalizar',
+      'session_saved': 'Sesión guardada',
+      'last_session': 'Última sesión',
 
       // Cover Search Screen
       'search_covers': 'Buscar Portadas',
@@ -722,6 +746,14 @@ class AppLocalizations {
   String get addToWishlist => getString('add_to_wishlist');
   String get alreadyOnWishlist => getString('already_on_wishlist');
   String get addedToWishlist => getString('added_to_wishlist');
+  String get buildNumber => getString('build_number');
+  String get sessionTimer => getString('session_timer');
+  String get sessionStart => getString('session_start');
+  String get sessionPause => getString('session_pause');
+  String get sessionReset => getString('session_reset');
+  String get sessionFinish => getString('session_finish');
+  String get sessionSaved => getString('session_saved');
+  String get lastSession => getString('last_session');
 
   // Cover Search Screen
   String get searchCovers => getString('search_covers');

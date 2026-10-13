@@ -2,7 +2,7 @@ name: boardpocket
 description: "BoardPocket - Digital Collection & Randomizer for Board Games"
 publish_to: 'none'
 
-version: 0.1.4+12
+version: 0.1.5+12
 
 environment:
   sdk: ^3.13.0
@@ -46,6 +46,7 @@ dependencies:
   # Charts
   fl_chart: ^1.2.0
   lottie: ^3.6.1
+  package_info_plus: ^10.2.2
 
 dev_dependencies:
   flutter_test:

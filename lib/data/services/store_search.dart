@@ -55,6 +55,16 @@ class StoreSearch {
     {'action': 'search', 'objecttype': 'boardgame', 'q': title.trim()},
   );
 
+  /// BoardGameArena search page.
+  ///
+  /// Same reasoning as BoardGameGeek: a plain website link, no API involved,
+  /// and BGA is the best place to actually play online.
+  static Uri boardGameArena(String title) => Uri.https(
+    'boardgamearena.net',
+    '/game/list',
+    {'search': title.trim()},
+  );
+
   /// The stores offered in the UI.
   static const List<StoreSearchEntry> entries = [
     StoreSearchEntry(
@@ -80,6 +90,12 @@ class StoreSearch {
       label: 'BoardGameGeek',
       icon: Icons.grid_view,
       build: boardGameGeek,
+    ),
+    StoreSearchEntry(
+      id: 'bga',
+      label: 'BoardGameArena',
+      icon: Icons.public,
+      build: boardGameArena,
     ),
   ];
 

@@ -1321,12 +1321,12 @@ void main() {
       await clearTables();
     });
 
-    test('should database have version 2', () async {
+    test('should database have version 3', () async {
       final dbHelper = DatabaseHelper.instance;
       final db = await dbHelper.rawDatabase;
 
       final version = await db!.getVersion();
-      expect(version, 2);
+      expect(version, 3);
     });
   });
 

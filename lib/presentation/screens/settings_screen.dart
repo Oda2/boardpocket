@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -28,10 +29,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
   bool _isExporting = false;
   bool _isImporting = false;
+
+  /// Read from the built app, so it follows pubspec.yaml automatically.
+  /// Was hardcoded to '1.0.0' while pubspec said 0.1.4+11.
+  String _version = '...';
+  String _buildNumber = '';
   String _deviceName = 'User';
 
   @override
   void initState() {
+    _loadAppVersion();
     super.initState();
     _getDeviceName();
   }
@@ -169,6 +176,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Reads the version from the built app so it follows pubspec.yaml, instead
+  /// of a hardcoded string that drifts out of sync.
+  Future<void> _loadAppVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (!mounted) return;
+      setState(() {
+        _version = info.version;
+        _buildNumber = info.buildNumber;
+      });
+    } catch (_) {
+      // Leave the placeholder: Settings must never break on desktop or web.
+    }
+  }
+
   Widget _buildAboutSection(AppLocalizations l10n) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -180,13 +202,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           iconColor: AppColors.primary,
           title: l10n.version,
           trailing: Text(
-            '1.0.0',
+            _version,
             style: TextStyle(
               color: isDark
                   ? AppColors.textSecondaryDark
                   : AppColors.textSecondaryLight,
             ),
           ),
+          onTap: _buildNumber.isEmpty
+              ? null
+              : () => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('${l10n.buildNumber}: $_buildNumber')),
+                  ),
         ),
         const SettingsDivider(),
         SettingsListTile(

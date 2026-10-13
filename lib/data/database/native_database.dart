@@ -24,7 +24,7 @@ class NativeDatabase implements DatabaseInterface {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -34,6 +34,12 @@ class NativeDatabase implements DatabaseInterface {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE games ADD COLUMN wins INTEGER DEFAULT 0');
       await db.execute('ALTER TABLE games ADD COLUMN losses INTEGER DEFAULT 0');
+    }
+    if (oldVersion < 3) {
+      // Duration of the most recent timed session, in milliseconds.
+      await db.execute(
+        'ALTER TABLE games ADD COLUMN last_session_ms INTEGER',
+      );
     }
   }
 

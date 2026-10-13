@@ -59,7 +59,7 @@ void main() {
         final providers = getProviders();
 
         expect(providers, isA<List<SingleChildWidget>>());
-        expect(providers.length, equals(6));
+        expect(providers.length, equals(7));
       });
 
       testWidgets('registers a working DiceProvider', (tester) async {

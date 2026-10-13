@@ -25,6 +25,7 @@ export 'policy_section.dart';
 export 'profile_avatar.dart';
 export 'screens/filterable_list_screen.dart';
 export 'section_label.dart';
+export 'session_timer.dart';
 export 'settings/settings_components.dart';
 export 'star_rating.dart';
 export 'theme_container.dart';

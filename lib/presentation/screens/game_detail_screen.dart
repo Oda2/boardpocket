@@ -11,6 +11,7 @@ import '../../core/theme/app_theme.dart';
 import '../../data/models/models.dart';
 import '../providers/game_provider.dart';
 import '../providers/wishlist_provider.dart';
+import '../providers/session_timer_provider.dart';
 import 'package:uuid/uuid.dart';
 
 class GameDetailScreen extends StatefulWidget {
@@ -168,9 +169,92 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             const SizedBox(height: 32),
             _buildPlayButtons(context, l10n),
             const SizedBox(height: 24),
+            _buildTimerSection(context, l10n),
+            const SizedBox(height: 24),
             _buildWishlistButton(context, l10n),
             const SizedBox(height: 100),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Stopwatch for this play session. Kept in a provider so it survives
+  /// navigating away and coming back.
+  Widget _buildTimerSection(BuildContext context, AppLocalizations l10n) {
+    final timer = context.watch<SessionTimerProvider>();
+    final game = _game!;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.sessionTimer,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.textDark
+                      : AppColors.textLight,
+                ),
+              ),
+            ),
+            if (game.lastSessionMs != null)
+              Text(
+                '${l10n.lastSession}: '
+                '${SessionTimer.format(Duration(milliseconds: game.lastSessionMs!))}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SessionTimer(
+          isRunning: timer.isRunning,
+          elapsed: timer.elapsed,
+          sessionLabel: l10n.sessionTimer.toUpperCase(),
+          startLabel: l10n.sessionStart,
+          pauseLabel: l10n.sessionPause,
+          resetLabel: l10n.sessionReset,
+          finishLabel: l10n.sessionFinish,
+          onStart: () => context.read<SessionTimerProvider>().start(),
+          onPause: () => context.read<SessionTimerProvider>().pause(),
+          onReset: () => context.read<SessionTimerProvider>().reset(),
+          onFinish: () => _finishSession(context, l10n),
+        ),
+      ],
+    );
+  }
+
+  /// Stops the clock and stores the duration on the game.
+  Future<void> _finishSession(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    final elapsed = context.read<SessionTimerProvider>().finish();
+    if (elapsed <= Duration.zero) return;
+
+    final updated = _game!.copyWith(
+      lastSessionMs: elapsed.inMilliseconds,
+      updatedAt: DateTime.now(),
+    );
+    await context.read<GameProvider>().updateGame(updated);
+    if (!context.mounted) return;
+
+    setState(() => _game = updated);
+    context.read<SessionTimerProvider>().reset();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${l10n.sessionSaved}: ${SessionTimer.format(elapsed)}',
         ),
       ),
     );

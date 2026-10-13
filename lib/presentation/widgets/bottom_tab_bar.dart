@@ -77,23 +77,34 @@ class BottomTabBar extends StatelessWidget {
   }) {
     final color = isActive ? AppColors.primary : Colors.grey;
 
-    return GestureDetector(
-      onTap: () => context.go(route),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
+    // Expanded + ellipsis: five tabs share one Row, and unconstrained labels
+    // like "Randomizer" overflowed on 360dp-wide phones.
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => context.go(route),
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -105,41 +116,43 @@ class BottomTabBar extends StatelessWidget {
     required String route,
     required bool isActive,
   }) {
-    return GestureDetector(
-      onTap: () => context.go(route),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Botão destacado circular
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: isActive
-                  ? AppColors.primary
-                  : AppColors.primary.withValues(alpha: 0.8),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.4),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+    return Expanded(
+        child: GestureDetector(
+        onTap: () => context.go(route),
+          child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Botão destacado circular
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: isActive
+                    ? AppColors.primary
+                    : AppColors.primary.withValues(alpha: 0.8),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(icon, color: Colors.white, size: 28),
             ),
-            child: Icon(icon, color: Colors.white, size: 28),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: isActive ? AppColors.primary : Colors.grey,
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isActive ? AppColors.primary : Colors.grey,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -6,11 +6,13 @@ import '../../core/i18n/i18n.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/game.dart';
 import '../../data/repositories/game_repository.dart';
+import '../../data/repositories/interfaces/game_repository_interface.dart';
 import '../widgets/bottom_tab_bar.dart';
 
 class RankingScreen extends StatefulWidget {
   /// Injectable for tests; defaults to the real repository in production.
-  final GameRepository? repository;
+  /// Typed on the interface so any repository implementation can be injected.
+  final IGameRepository? repository;
 
   const RankingScreen({super.key, this.repository});
 
@@ -102,7 +104,7 @@ class _RankingScreenState extends State<RankingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStatisticsSummary(isDark),
+          _buildStatisticsSummary(l10n, isDark),
           const SizedBox(height: 32),
           Text(
             l10n.statistics,
@@ -115,7 +117,7 @@ class _RankingScreenState extends State<RankingScreen> {
           const SizedBox(height: 24),
           _buildWinLossChart(isDark, l10n),
           const SizedBox(height: 32),
-          _buildMostPlayedChart(isDark),
+          _buildMostPlayedChart(l10n, isDark),
           const SizedBox(height: 32),
           Text(
             l10n.gamesRanking,
@@ -133,7 +135,7 @@ class _RankingScreenState extends State<RankingScreen> {
     );
   }
 
-  Widget _buildStatisticsSummary(bool isDark) {
+  Widget _buildStatisticsSummary(AppLocalizations l10n, bool isDark) {
     final totalPlays = _games.fold<int>(0, (sum, g) => sum + g.totalPlays);
     final totalWins = _games.fold<int>(0, (sum, g) => sum + g.wins);
     final totalLosses = _games.fold<int>(0, (sum, g) => sum + g.losses);
@@ -146,19 +148,19 @@ class _RankingScreenState extends State<RankingScreen> {
           _buildStatItem(
             icon: Icons.sports_esports,
             value: totalPlays.toString(),
-            label: 'Total Plays',
+            label: l10n.totalPlays,
             color: AppColors.primary,
           ),
           _buildStatItem(
             icon: Icons.emoji_events,
             value: totalWins.toString(),
-            label: 'Wins',
+            label: l10n.wins,
             color: Colors.green,
           ),
           _buildStatItem(
             icon: Icons.thumb_down,
             value: totalLosses.toString(),
-            label: 'Losses',
+            label: l10n.losses,
             color: Colors.red,
           ),
         ],
@@ -172,24 +174,40 @@ class _RankingScreenState extends State<RankingScreen> {
     required String label,
     required Color color,
   }) {
-    return Column(
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(24),
+    // Expanded + FittedBox: three of these share one Row, and the labels
+    // overflowed on narrow phones.
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Icon(icon, color: color),
           ),
-          child: Icon(icon, color: color),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-      ],
+          const SizedBox(height: 8),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              maxLines: 1,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -286,7 +304,7 @@ class _RankingScreenState extends State<RankingScreen> {
     );
   }
 
-  Widget _buildMostPlayedChart(bool isDark) {
+  Widget _buildMostPlayedChart(AppLocalizations l10n, bool isDark) {
     final topGames = _games.take(5).toList();
     if (topGames.isEmpty) return const SizedBox();
 
@@ -295,9 +313,9 @@ class _RankingScreenState extends State<RankingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Most Played',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            l10n.mostPlayedGames,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           ...topGames.map((game) => _buildGameBar(game)),

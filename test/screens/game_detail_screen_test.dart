@@ -10,6 +10,7 @@ import 'package:boardpocket/core/i18n/app_localizations.dart';
 import 'package:boardpocket/data/models/wishlist_item.dart';
 import 'package:boardpocket/data/repositories/interfaces/wishlist_repository_interface.dart';
 import 'package:boardpocket/presentation/providers/wishlist_provider.dart';
+import 'package:boardpocket/presentation/providers/session_timer_provider.dart';
 
 class MockGameRepository implements IGameRepository {
   Game? _mockGame;
@@ -87,10 +88,14 @@ Widget createTestWidget({
   required Widget child,
   required GameProvider gameProvider,
   WishlistProvider? wishlistProvider,
+  SessionTimerProvider? sessionTimerProvider,
 }) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<GameProvider>.value(value: gameProvider),
+      ChangeNotifierProvider<SessionTimerProvider>.value(
+        value: sessionTimerProvider ?? SessionTimerProvider(),
+      ),
       ChangeNotifierProvider<WishlistProvider>.value(
         value:
             wishlistProvider ??

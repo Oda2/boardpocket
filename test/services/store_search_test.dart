@@ -59,7 +59,7 @@ void main() {
     test('offers the four storefronts', () {
       expect(
         StoreSearch.entries.map((e) => e.id),
-        containsAll(['google', 'amazon', 'mercadolivre', 'bgg']),
+        containsAll(['google', 'amazon', 'mercadolivre', 'bgg', 'bga']),
       );
     });
 
@@ -80,6 +80,13 @@ void main() {
         expect(StoreSearch.byId(entry.id), same(entry));
       }
       expect(StoreSearch.byId('nope'), isNull);
+    });
+
+    test('board game arena searches the game list', () {
+      final uri = StoreSearch.boardGameArena('Dixit');
+      expect(uri.host, 'boardgamearena.net');
+      expect(uri.path, '/game/list');
+      expect(uri.queryParameters['search'], 'Dixit');
     });
 
     test('every entry builds an absolute https url', () {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -390,12 +391,27 @@ void main() {
       expect(find.text('Version'), findsOneWidget);
     });
 
-    testWidgets('should show version number', (tester) async {
+    testWidgets('should show the version reported by the app metadata', (
+      tester,
+    ) async {
+      // The version comes from PackageInfo (built from pubspec.yaml), so the
+      // test mocks the platform instead of hardcoding a string.
+      PackageInfo.setMockInitialValues(
+        appName: 'BoardPocket',
+        packageName: 'com.oda2.boardpocket',
+        version: '9.9.9',
+        buildNumber: '42',
+        buildSignature: '',
+        installerStore: '',
+      );
+
       await tester.pumpWidget(
         createTestWidget(settingsProvider: settingsProvider),
       );
       await tester.pumpAndSettle();
-      expect(find.text('1.0.0'), findsOneWidget);
+
+      expect(find.text('9.9.9'), findsOneWidget);
+      expect(find.text('1.0.0'), findsNothing);
     });
 
     testWidgets('should have privacy policy option', (tester) async {
