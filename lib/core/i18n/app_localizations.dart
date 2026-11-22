@@ -8,6 +8,11 @@ class AppLocalizations {
 
   AppLocalizations(this.locale);
 
+  /// Keys defined for [locale]. Exposed so tests can assert that every
+  /// locale keeps the exact same set of translations.
+  static Set<String> availableKeys(Locale locale) =>
+      _localizedValues[locale.languageCode]?.keys.toSet() ?? <String>{};
+
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations) ??
         AppLocalizations(const Locale('en'));
@@ -169,13 +174,6 @@ class AppLocalizations {
       'already_on_wishlist': 'On your wishlist',
       'added_to_wishlist': 'added to your wishlist',
       'build_number': 'Build',
-      'session_timer': 'Cronômetro',
-      'session_start': 'Iniciar',
-      'session_pause': 'Pausar',
-      'session_reset': 'Zerar',
-      'session_finish': 'Finalizar',
-      'session_saved': 'Sessão salva',
-      'last_session': 'Última sessão',
       'session_timer': 'Session timer',
       'session_start': 'Start',
       'session_pause': 'Pause',
@@ -352,6 +350,13 @@ class AppLocalizations {
       'already_on_wishlist': 'Já está na wishlist',
       'added_to_wishlist': 'adicionado à sua wishlist',
       'build_number': 'Build',
+      'session_timer': 'Cronômetro',
+      'session_start': 'Iniciar',
+      'session_pause': 'Pausar',
+      'session_reset': 'Zerar',
+      'session_finish': 'Finalizar',
+      'session_saved': 'Sessão salva',
+      'last_session': 'Última sessão',
 
       // Cover Search Screen
       'search_covers': 'Buscar Capas',

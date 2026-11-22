@@ -151,6 +151,14 @@ List<String Function(AppLocalizations)> allGetters() => [
   (l) => l.coverSearchBusy,
   (l) => l.coverSearchBusyDesc,
   (l) => l.openSource,
+  (l) => l.buildNumber,
+  (l) => l.sessionTimer,
+  (l) => l.sessionStart,
+  (l) => l.sessionPause,
+  (l) => l.sessionReset,
+  (l) => l.sessionFinish,
+  (l) => l.sessionSaved,
+  (l) => l.lastSession,
   (l) => l.coverSearchRelaxed('dixit'),
 ];
 
@@ -170,7 +178,32 @@ void main() {
           }
         }
 
-        expect(missing, isEmpty, reason: 'locale "$code" has untranslated keys');
+        expect(
+          missing,
+          isEmpty,
+          reason: 'locale "$code" has untranslated keys',
+        );
+      }
+    });
+
+    test('every locale defines exactly the same set of keys', () {
+      final reference = AppLocalizations.availableKeys(const Locale('en'));
+
+      expect(reference, isNotEmpty);
+
+      for (final code in locales.skip(1)) {
+        final keys = AppLocalizations.availableKeys(Locale(code));
+
+        expect(
+          keys.difference(reference),
+          isEmpty,
+          reason: 'locale "$code" has keys that English does not',
+        );
+        expect(
+          reference.difference(keys),
+          isEmpty,
+          reason: 'locale "$code" is missing keys defined in English',
+        );
       }
     });
 
@@ -184,7 +217,10 @@ void main() {
 
     test('getString reports the key when it does not exist', () {
       final l10n = AppLocalizations(const Locale('en'));
-      expect(l10n.getString('does_not_exist'), 'Missing translation: does_not_exist');
+      expect(
+        l10n.getString('does_not_exist'),
+        'Missing translation: does_not_exist',
+      );
     });
 
     test('translations actually differ between locales', () {
@@ -232,7 +268,10 @@ void main() {
       });
 
       test('rejects unknown locales', () {
-        expect(AppLocalizations.delegate.isSupported(const Locale('xx')), isFalse);
+        expect(
+          AppLocalizations.delegate.isSupported(const Locale('xx')),
+          isFalse,
+        );
       });
 
       test('loads a localization for the given locale', () async {

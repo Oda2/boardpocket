@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../theme/app_theme.dart';
 
 class CountdownOverlay extends StatelessWidget {
@@ -194,13 +195,28 @@ class FingerPickerHeader extends StatelessWidget {
 
 class FingerPickerCanvas extends StatelessWidget {
   final Widget child;
+  final PointerDownEventListener? onPointerDown;
+  final PointerMoveEventListener? onPointerMove;
+  final PointerUpEventListener? onPointerUp;
+  final PointerCancelEventListener? onPointerCancel;
 
-  const FingerPickerCanvas({super.key, required this.child});
+  const FingerPickerCanvas({
+    super.key,
+    required this.child,
+    this.onPointerDown,
+    this.onPointerMove,
+    this.onPointerUp,
+    this.onPointerCancel,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Listener(
-      onPointerDown: (_) {},
+      onPointerDown: onPointerDown,
+      onPointerMove: onPointerMove,
+      onPointerUp: onPointerUp,
+      onPointerCancel: onPointerCancel,
+      behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
           gradient: RadialGradient(

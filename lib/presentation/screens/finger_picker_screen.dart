@@ -14,6 +14,15 @@ class FingerData {
   final Color color;
 
   FingerData({required this.id, required this.position, required this.color});
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is FingerData && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 class FingerPickerScreen extends StatefulWidget {
@@ -106,11 +115,55 @@ class _FingerPickerScreenState extends State<FingerPickerScreen>
     _countdownController.forward(from: 0);
   }
 
-  void _reset() {
+  void _handlePointerDown(PointerDownEvent details) {
+    if (_isSelecting || _winner != null) return;
+    if (_activePointers.containsKey(details.pointer)) return;
+
+    HapticFeedback.lightImpact();
     setState(() {
+      _activePointers[details.pointer] = details.localPosition;
+      _fingers.add(
+        FingerData(
+          id: details.pointer,
+          position: details.localPosition,
+          color: _getFingerColor(_fingers.length),
+        ),
+      );
+    });
+  }
+
+  void _handlePointerMove(PointerMoveEvent details) {
+    if (_isSelecting || _winner != null) return;
+    final index = _fingers.indexWhere((f) => f.id == details.pointer);
+    if (index == -1) return;
+
+    setState(() {
+      _activePointers[details.pointer] = details.localPosition;
+      _fingers[index] = FingerData(
+        id: details.pointer,
+        position: details.localPosition,
+        color: _fingers[index].color,
+      );
+    });
+  }
+
+  void _handlePointerEnd(PointerEvent details) {
+    if (!_activePointers.containsKey(details.pointer)) return;
+    setState(() {
+      _activePointers.remove(details.pointer);
+    });
+  }
+
+  void _reset() {
+    _countdownController.stop();
+    _countdownController.reset();
+    _winnerController.reset();
+    setState(() {
+      _activePointers.clear();
       _fingers.clear();
       _winner = null;
       _isSelecting = false;
+      _countdown = _countdownSeconds;
       _showControls = true;
     });
   }
@@ -129,7 +182,6 @@ class _FingerPickerScreenState extends State<FingerPickerScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -137,11 +189,17 @@ class _FingerPickerScreenState extends State<FingerPickerScreen>
         child: Stack(
           children: [
             FingerPickerCanvas(
+              onPointerDown: _handlePointerDown,
+              onPointerMove: _handlePointerMove,
+              onPointerUp: _handlePointerEnd,
+              onPointerCancel: _handlePointerEnd,
               child: Stack(
                 children: [
                   FingerPickerHeader(
                     title: 'Finger Picker',
-                    subtitle: l10n.tapToAddFingers,
+                    subtitle: _fingers.isEmpty
+                        ? l10n.tapToAddFingers
+                        : '${_fingers.length} ${_fingers.length == 1 ? l10n.finger : l10n.fingers}',
                     isSelecting: _isSelecting,
                     hasWinner: _winner != null,
                   ),
