@@ -427,9 +427,9 @@ We love contributions! Here's how you can help:
 - [X] Player profiles and win/loss tracking
 - [X] Dice roller with selectable dice types
 - [X] Cover image search (free, key-less APIs)
+- [X] Game session timer
 - [ ] Game recommendations based on collection
 - [ ] Social features (share collections)
-- [ ] Game session timer
 - [ ] Score keeping tools
 - [ ] Barcode scanner for quick game addition
 
