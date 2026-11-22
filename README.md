@@ -424,7 +424,7 @@ We love contributions! Here's how you can help:
 ## 🗺 Roadmap
 
 - [X] Board game statistics and analytics dashboard
-- [X] Player profiles and win/loss tracking
+- [X] Win/loss tracking per game
 - [X] Dice roller with selectable dice types
 - [X] Cover image search (free, key-less APIs)
 - [X] Game session timer
